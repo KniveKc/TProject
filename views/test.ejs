@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>
+        <%= title %>
+    </title>
+    <meta name="viewport" content="width=device-width, initial-scale=.0, user-scalable=no">
+    <meta(charset='utf-8' )>
+
+
+
+        <link href='https://fonts.googleapis.com/css?family=Raleway' rel='stylesheet' type='text/css'>
+        <link href="public/css/bootstrap.css" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet" type="text/css">
+        <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
+        <script src="public/js/bootstrap.js"></script>
+
+
+        <style type="text/css">
+            input[type=range] {
+                -webkit-appearance: scroll;
+                /* Hides the slider so that custom slider can be made */
+                width: 100%;
+                /* Specific width is required for Firefox. */
+                background: transparent;
+                /* Otherwise white in Chrome */
+            }
+            
+            input[type=range]::-webkit-slider-thumb {
+                -webkit-appearance: none;
+            }
+            
+            input[type=range]:focus {
+                outline: none;
+                /* Removes the blue border. You should probably do some kind of focus styling for accessibility reasons though. */
+            }
+            
+            input[type=range]::-ms-track {
+                width: 100%;
+                cursor: pointer;
+                /* Hides the slider so custom styles can be added */
+                background: transparent;
+                border-color: transparent;
+                color: transparent;
+            }
+        </style>
+
+        <script>
+            var x = 0;
+            var y = 0;
+
+            $(document).ready(function() {
+
+                $('#sliderx').change(function() {
+                    $('#outx').text(
+                        $('#sliderx').val()
+                    );
+                    x = $('#sliderx').val()
+                    console.log(x);
+                })
+
+                $('#slidery').change(function() {
+                    $('#outy').text(
+                        $('#slidery').val()
+                    );
+                    y = $('#sliderx').val()
+                    console.log(y);
+                })
+
+
+            });
+        </script>
+
+
+
+</head>
+
+
+<body>
+
+    <div class="well">
+
+        <input id="sliderx" type="range" min="0" max="20" step="0.1" value="0"></input>
+        <p id="outx">0</p>
+
+        <input id="slidery" type="range" min="0" max="20" step="0.1"></input>
+        <p id="outy">10</p>
+
+    </div>
+
+</body>
+
+</html>

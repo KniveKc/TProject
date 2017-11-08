@@ -1,0 +1,736 @@
+<html>
+
+<head>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta(charset='utf-8' )>
+
+        <title>G-Tools</title>
+
+        <link href="public/css/bootstrap.css" rel="stylesheet">
+
+        <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.css" />-->
+        <script src="/public/js/jquery-3.1.1.js"></script>
+
+
+        <script src="https://cdn.socket.io/socket.io-1.4.3.js"></script>
+
+        <script type="text/javascript" src="/public/js/paper.js"></script>
+        <!-- Load external PaperScript and associate it with myCanvas -->
+        <script type="text/paperscript" src="/public/js/myScript.js" canvas="myCanvas">
+        </script>
+
+        <!-- Scipt für diese Seite -->
+        <script>
+            var socket = io.connect();
+            var lastCommand = "";
+
+
+            socket.emit("welcomeServer", {
+                name: "David"
+            });
+
+
+
+            $(document).ready(function() {
+
+
+                socket.on("percentage", function(percentage) {
+                    console.log(percentage);
+                    $('.progress-bar').text(parseFloat(percentage).toPrecision(4) + '%');
+                    $('.progress-bar').width(percentage + '%');
+                });
+
+                socket.on("newCommand", function(commands) {
+                    $(function() {
+                        var pre = $("#scrollpre");
+                        pre.scrollTop(pre.prop("scrollHeight"));
+                    });
+
+
+
+                    if (commands.command != lastCommand) {
+                        $("#liste").append(
+                            $("<li></li>").text(commands.command)
+                        );
+                        lastCommand = commands.command;
+                    }
+
+
+
+                    $("#MXPos").text(commands.MXPos + " mm");
+                    $("#MYPos").text(commands.MYPos + " mm");
+                    $("#status").text(commands.status);
+                    $("#WXPos").text(commands.WXPos + " mm");
+                    $("#WYPos").text(commands.WYPos + " mm");
+
+                    if (commands.status == "Alarm") {
+                        $("#status").css({
+                            color: "darkred"
+                        });
+                    } else if (commands.status == "Run") {
+                        $("#status").css({
+                            color: "orange"
+                        });
+                    } else if (commands.status == "Idle") {
+                        $("#status").css({
+                            color: "green"
+                        });
+                    }
+
+
+                });
+
+                $("#unlock").click(function() {
+                    socket.emit("entsperren");
+                });
+
+                $("#senden").click(function() {
+                    var command = $("#command").val();
+                    socket.emit("command", {
+                        command: command
+                    });
+                });
+
+
+                $("#homing").click(function() {
+                    socket.emit("homing");
+                });
+
+
+                $("#open").click(function() {
+                    socket.emit("open");
+                });
+
+                $("#close").click(function() {
+                    socket.emit("close");
+                });
+
+                $("#goToZero").click(function() {
+                    socket.emit("goToZero");
+                });
+
+                $("#options").click(function() {
+                    socket.emit("options");
+                });
+
+                $("#softReset").click(function() {
+                    socket.emit("softReset");
+                });
+
+                $("#sendeCode").click(function() {
+                    socket.emit("sendeCode");
+                });
+
+                //
+                $("#pauseCode").click(function() {
+                    socket.emit("pauseCode");
+                });
+
+                $("#resumeCode").click(function() {
+                    socket.emit("resumeCode");
+                });
+                //
+
+                $("#setZero").click(function() {
+                    socket.emit("setZero");
+
+                });
+
+
+
+                var xmm = 0.1;
+                var xmmy = 0.1;
+
+                $("#xp").click(function() {
+                    socket.emit("xp", {
+                        mm: xmm
+                    });
+                });
+
+                $("#xm").click(function() {
+                    socket.emit("xm", {
+                        mm: xmm
+                    });
+                });
+
+                $("#yp").click(function() {
+                    socket.emit("yp", {
+                        mm: ymm
+                    });
+                });
+
+                $("#ym").click(function() {
+                    socket.emit("ym", {
+                        mm: ymm
+                    });
+                });
+
+
+                //Slider-control
+
+                $('#sliderx').change(function() {
+                    $('#outx').text(
+                        $('#sliderx').val()
+                    );
+                    xmm = $('#sliderx').val()
+                    console.log(xmm);
+                })
+
+                $('#slidery').change(function() {
+                    $('#outy').text(
+                        $('#slidery').val()
+                    );
+                    ymm = $('#slidery').val()
+                    console.log(ymm);
+                })
+
+                //SAlider 2 (test)
+
+                $('#sliderx1').change(function() {
+                    $('#outx1').text(
+                        $('#sliderx1').val()
+                    );
+                    xmm = $('#sliderx1').val()
+                    console.log(xmm);
+                    socket.emit("xp1", {
+                        mm: xmm
+                    });
+                })
+
+                $('#slidery1').change(function() {
+                        $('#outy1').text(
+                            $('#slidery1').val()
+                        );
+                        ymm = $('#slidery1').val()
+                        console.log(ymm);
+                        socket.emit("yp1", {
+                            mm: ymm
+                        });
+                    })
+                    //
+                    //Laser Control
+
+
+                $('#laserOn').click(function() {
+                    socket.emit("command", {
+                        command: "M03"
+                    });
+                })
+
+                $('#laserOff').click(function() {
+                    socket.emit("command", {
+                        command: "M05"
+                    });
+                })
+
+                $('#sliderlaser').change(function() {
+                    $('#outlaser').text(
+                        $('#sliderlaser').val()
+                    );
+                    var laserpwm = $('#sliderlaser').val()
+                    socket.emit("command", {
+                        command: "S" + laserpwm
+                    });
+                    console.log(ymm);
+                })
+
+
+                //File 
+                $('#ul').on('change', function() {
+
+                    var reader = new FileReader();
+                    var text;
+
+                    reader.onload = function(e) {
+                        text = reader.result
+                        socket.emit("fileinput", text);
+                        //console.log(text);
+                    }
+
+                    reader.readAsText(this.files[0]);
+
+                    //console.log(this.files[0]);
+
+                }).click();
+
+            });
+        </script>
+        <!-- Script ende -->
+
+
+
+        <!-- Von Bootstrap abweichendes styling -->
+
+
+        <style type="text/css">
+            body {
+                background: linear-gradient(#000, #333);
+            }
+            
+            input[type=range] {
+                -webkit-appearance: none;
+                width: 100%;
+                margin: 12.85px 0;
+            }
+            
+            input[type=range]:focus {
+                outline: none;
+            }
+            
+            input[type=range]::-webkit-slider-runnable-track {
+                width: 100%;
+                height: 3.3px;
+                cursor: pointer;
+                box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+                background: rgba(0, 0, 0, 0.56);
+                border-radius: 1.3px;
+                border: 0.2px solid #000000;
+            }
+            
+            input[type=range]::-webkit-slider-thumb {
+                box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+                border: 1px solid #000000;
+                height: 29px;
+                width: 6px;
+                border-radius: 3px;
+                background: rgba(0, 0, 0, 0.27);
+                cursor: pointer;
+                -webkit-appearance: none;
+                margin-top: -13.05px;
+            }
+            
+            input[type=range]:focus::-webkit-slider-runnable-track {
+                background: rgba(13, 13, 13, 0.56);
+            }
+            
+            input[type=range]::-moz-range-track {
+                width: 100%;
+                height: 3.3px;
+                cursor: pointer;
+                box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+                background: rgba(0, 0, 0, 0.56);
+                border-radius: 1.3px;
+                border: 0.2px solid #000000;
+            }
+            
+            input[type=range]::-moz-range-thumb {
+                box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+                border: 1px solid #000000;
+                height: 29px;
+                width: 6px;
+                border-radius: 3px;
+                background: rgba(0, 0, 0, 0.27);
+                cursor: pointer;
+            }
+            
+            input[type=range]::-ms-track {
+                width: 100%;
+                height: 3.3px;
+                cursor: pointer;
+                background: transparent;
+                border-color: transparent;
+                color: transparent;
+            }
+            
+            input[type=range]::-ms-fill-lower {
+                background: rgba(0, 0, 0, 0.56);
+                border: 0.2px solid #000000;
+                border-radius: 2.6px;
+                box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+            }
+            
+            input[type=range]::-ms-fill-upper {
+                background: rgba(0, 0, 0, 0.56);
+                border: 0.2px solid #000000;
+                border-radius: 2.6px;
+                box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+            }
+            
+            input[type=range]::-ms-thumb {
+                box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+                border: 1px solid #000000;
+                height: 29px;
+                width: 6px;
+                border-radius: 3px;
+                background: rgba(0, 0, 0, 0.27);
+                cursor: pointer;
+                height: 3.3px;
+            }
+            
+            input[type=range]:focus::-ms-fill-lower {
+                background: rgba(0, 0, 0, 0.56);
+            }
+            
+            input[type=range]:focus::-ms-fill-upper {
+                background: rgba(13, 13, 13, 0.56);
+            }
+            
+            .navbar-inverse {
+                background-color: #000;
+                border: 1px solid #555;
+            }
+            
+            .well-0 {
+                min-height: 380px;
+                max-height: 500px;
+                padding: 20px;
+                margin-bottom: 50px;
+                background-color: #CCC;
+                border: 2px solid #EEE;
+                border-radius: 20px;
+                -webkit-box-shadow: 0 0 5px 5px#000;
+                box-shadow: 0 0 5px 5px#000;
+                text-align: center;
+            }
+            
+            .well-1 {
+                min-height: 400px;
+                padding: 20px;
+                margin-bottom: 40px;
+                background-color: #CCC;
+                border: 2px solid #EEE;
+                border-radius: 20px;
+                -webkit-box-shadow: 0 0 5px 5px#000;
+                box-shadow: 0 0 5px 5px#000;
+            }
+            
+            .well-2 {
+                padding: 20px;
+                margin-bottom: 20px;
+                background-color: #CCC;
+                border: 2px solid #EEE;
+                border-radius: 20px;
+                -webkit-box-shadow: 0 0 5px 5px#000;
+                box-shadow: 0 0 5px 5px#000;
+            }
+            
+            .btn-info {
+                color: #000;
+                background-color: #777;
+                border-color: #000000;
+                border-radius: 10px;
+            }
+            
+            .btn-info:focus,
+            .btn-info.focus {
+                color: #fff;
+                background-color: #222222;
+                border-color: #000000;
+            }
+            
+            .btn-info:hover {
+                color: #fff;
+                background-color: #444444;
+                border-color: #000000;
+            }
+            
+            .btn-info:active,
+            .btn-info.active,
+            .open>.dropdown-toggle.btn-info {
+                color: #fff;
+                background-color: #222222;
+                border-color: #000000;
+            }
+            
+            .pre-scrollable {
+                min-height: 200px;
+                max-height: 260px;
+                overflow-y: hidden;
+                background-color: #CCC;
+                font-family: Impact;
+                color: black
+            }
+            
+            ul.v {
+                list-style-type: none;
+                text-align: left;
+            }
+            
+            .row1 {
+                padding-top: 20px;
+                padding-bottom: 0px;
+            }
+        </style>
+        <!-- Styling Ende -->
+</head>
+
+
+<!--  -->
+
+<body>
+    <!--background="/public/images/bgimage.jpg"-->
+
+    <nav class="navbar navbar-inverse">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="/about">Laser Server</a>
+            </div>
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="/">Home</a></li>
+                <li><a>Hello, 
+                    <%= user.username %>
+                </a></li>
+                <li><a href="/logout">Logout</a></li>
+                <% if (user.username == 'admin') { %>
+                    <li><a href="/admin">Admin_DB</a></li>
+                    <% } %>
+            </ul>
+        </div>
+    </nav>
+
+
+    <div class="container-fluid">
+
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="well-0">
+                    <div class="row">
+                        <div class="btn-group btn-group-justified">
+                            <div class="btn-group">
+                                <button id="open" class="btn btn-info">Port öffnen!</button>
+                            </div>
+                            <div class="btn-group">
+                                <button id="close" class="btn btn-info">Port schließen!</button>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="btn-group btn-group-justified">
+                            <div class="btn-group">
+                                <button id="senden" class="btn btn-info">Befehl senden!</button>
+                            </div>
+                        </div>
+                        <br>
+                        <input id="command" type="text" class="form-control" placeholder="Enter command!" />
+                        <br>
+                        <div class="btn-group btn-group-justified">
+                            <div class="btn-group">
+                                <a id="sendeCode" href="#" class="btn btn-info"><span class="glyphicon glyphicon-play"></span> Start</a>
+                            </div>
+                            <div class="btn-group">
+                                <a id="pauseCode" href="#" class="btn btn-info"><span class="glyphicon glyphicon-pause"></span> Pause</a>
+                            </div>
+                            <div class="btn-group">
+                                <a id="resumeCode" href="#" class="btn btn-info"><span class="glyphicon glyphicon-resume"></span> Resume</a>
+                            </div>
+                        </div>
+
+                        <br>
+                        <div class="btn-group btn-group-justified">
+                            <div class="btn-group">
+                                <label class="btn btn-info"><span class="glyphicon glyphicon-folder-open"></span> 
+                                Browse <input id="ul" type="file" style="position: fixed; top: -100em" accept="text/*"></input>
+                            </label>
+                            </div>
+                        </div>
+
+
+                        <div class="btn-group btn-group-justified">
+                            <div class="btn-group">
+                                <button id="options" class="btn btn-info">Optionen!</button>
+                            </div>
+                            <div class="btn-group">
+                                <button id="softReset" class="btn btn-info">Soft Reset!</button>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="row1">
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar"></div>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+
+
+            <div class="col-md-4">
+                <div class="well-0">
+                    <div class="container-fluid">
+                        <strong>Konsole</strong>
+                        <div id="scrollpre" class="well-sm pre-scrollable">
+                            <ul id="liste" class="v"> </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div class="col-md-4">
+                <div class="well-0">
+
+
+
+
+
+
+                    <div class="btn-group btn-group-justified">
+
+                        <div class="btn-group">
+                            <button id="xp" class="btn btn-info">X+</button>
+                        </div>
+                        <div class="btn-group">
+                            <button id="xm" class="btn btn-info">X-</button>
+                        </div>
+
+                        <div class="btn-group">
+                            <button id="yp" class="btn btn-info">Y+</button>
+                        </div>
+                        <div class="btn-group">
+                            <button id="ym" class="btn btn-info">Y-</button>
+                        </div>
+
+                    </div>
+                    <div class="btn-group btn-group-justified">
+                        <div class="btn-group">
+                            <button id="unlock" class="btn btn-info">$X Entsperren!</button>
+                        </div>
+                        <div class="btn-group">
+                            <button id="homing" class="btn btn-info">$H Homing!</button>
+                        </div>
+                    </div>
+
+
+
+
+                    <div class="well-lg">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="row">
+                                    <label>|Machine Position|</label>
+                                </div>
+                                <div class="row">
+                                    <label>X:</label>
+                                    <strong class="panel panel-default" id="MXPos">0 mm</strong>
+                                </div>
+
+                                <div class="row">
+                                    <label>Y:</label>
+                                    <strong class="panel panel-default" id="MYPos">0 mm</strong>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="row">
+                                    <label>|Work Position|</label>
+                                </div>
+                                <div class="row">
+                                    <label>X:</label>
+                                    <strong class="panel panel-default" id="WXPos">0 mm</strong>
+                                </div>
+
+                                <div class="row">
+                                    <label>Y:</label>
+                                    <strong class="panel panel-default" id="WYPos">0 mm</strong>
+                                </div>
+                            </div>
+
+
+
+
+                            <div class="col-md-4">
+                                <div class="row">
+                                    <label>|Status:|</label>
+                                </div>
+                                <div class="row">
+                                    <strong id="status" style="color: darkred">Status</strong>
+                                </div>
+                            </div>
+
+
+                        </div>
+
+
+                        <div class="row">
+
+                            <input id="sliderx" type="range" min="0.1" max="20" step="0.1" value="0.1"></input>
+                            <p id="outx">0.1</p>
+
+                            <input id="slidery" type="range" min="0.1" max="20" step="0.1" value="0.1"></input>
+                            <p id="outy">0.1</p>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="btn-group btn-group-justified">
+                        <div class="btn-group">
+                            <button id="goToZero" class="btn btn-info">Go to Zero</button>
+                        </div>
+                        <div class="btn-group">
+                            <button id="setZero" class="btn btn-info">Reset Work Zero</button>
+                        </div>
+                    </div>
+
+
+                </div>
+                <!--Well end -->
+
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="well-1">
+                    <div class="container-fluid">
+                        <canvas width="450" height="400" id="myCanvas"></canvas>
+                    </div>
+
+                </div>
+            </div>
+
+
+            <div class="col-md-8">
+
+                <% if (user.username == 'admin') { %>
+
+                    <div class="well-2">
+                        <strong>Live positioning</strong>
+                        <div>
+                            <strong>X-Axis</strong>
+                            <input id="sliderx1" type="range" min="0.0" max="329" step="0.5" value="0"></input>
+                            <p id="outx1">0.0</p>
+                            <strong>Y-Axis<strong>
+                        <input id="slidery1" type="range" min="0.0" max="382" step="0.5" value="0"></input>
+                        <p id="outy1">0.0</p>
+                    </div>
+
+                </div>
+
+
+                <div class="well-2">
+                    <div class="btn-group btn-group-justified">
+                        <div class="btn-group">
+                            <button id="laserOn" class="btn btn-info">Laser On!</button>
+                        </div>
+                        <div class="btn-group">
+                            <button id="laserOff" class="btn btn-info">Laser Off!</button>
+                        </div>
+                    </div>
+                        <div>
+                        <strong>Laser PWM</strong>
+                            <input id="sliderlaser" type="range" min="9" max="255" step="1" value="0"></input>
+                            <p id="outlaser">0</p>
+                        </div>
+
+                        <% } else { %>
+                            <% } %>
+
+
+                    </div>
+            </div>
+        </div>
+
+
+</body>
+
+</footer>
+
+</html>

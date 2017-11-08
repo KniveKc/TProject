@@ -1,0 +1,284 @@
+<html>
+    <head>
+        
+        <meta name="viewport" content="width=device-width, initial-scale=.0, user-scalable=no">
+        <meta(charset='utf-8')>
+        
+        <title>Startseite</title>
+        <link href="public/css/bootstrap.css" rel="stylesheet">
+        
+
+
+
+
+
+
+        <script src="/public/js/jquery-3.1.1.js"></script>
+    
+                 
+        <script src="https://cdn.socket.io/socket.io-1.4.3.js"></script>
+        <script>
+
+
+            var socket = io.connect("http://localhost:8080/");
+            
+            //socket.emit("welcomeServer", {
+            //    name: "David"
+            //});
+
+                     
+            
+            $(document).ready(function() {  
+
+                
+                
+                socket.on("newCommand", function(commands) {
+
+                
+                    $( function(){
+                    var pre = jQuery("#scrollpre");
+                    pre.scrollTop( pre.prop("scrollHeight") );
+                    });
+                    
+                    
+                    $("#liste").append(
+                        $("<li></li>").text(commands.command)
+                    );
+
+                    
+                
+                    $("#XPos").text("XPOS: " + commands.XPos + " mm");
+                    $("#YPos").text("YPOS: " + commands.YPos + " mm");
+                    $("#status").text("STATUS: " + commands.status); 
+                    
+                
+                
+                });
+                
+                $("#unlock").click(function() {
+                    socket.emit("entsperren");
+                });
+            
+                $("#senden").click(function() {
+                    var command = $("#command").val();       
+                    socket.emit("command", {
+                        command: command
+                    });
+                });
+
+                $("#homing").click(function() {
+                    socket.emit("homing");
+                    });
+
+
+                $("#open").click(function() {
+                    socket.emit("open");
+                    });
+
+                $("#close").click(function() {
+                    socket.emit("close");
+                    });
+                
+                $("#goToZero").click(function() {
+                    socket.emit("goToZero");
+                    });
+            
+                $("#options").click(function() {
+                    socket.emit("options");
+                    });
+        
+                $("#softReset").click(function() {
+                    socket.emit("softReset");
+                });
+                
+                $("#sendeCode").click(function() {
+                    socket.emit("sendeCode");
+                });
+                
+                
+                
+                var mm = 1;
+                
+                
+                
+                $("#xp").click(function() {
+                    socket.emit("xp", {mm:mm});
+                    });
+            
+                $("#xm").click(function() {
+                    socket.emit("xm", {mm:mm});
+                    });
+        
+                $("#yp").click(function() {
+                    socket.emit("yp", {mm:mm});
+                });
+                
+                $("#ym").click(function() {
+                    socket.emit("ym", {mm:mm});
+                });
+
+
+
+            
+            $('#option1').parent().on("click", function () {
+                mm = 1;
+                console.log(mm);
+            }); 
+            
+            $('#option2').parent().on("click", function () {
+                mm = 5;
+                console.log(mm);
+            });
+            
+            $('#option3').parent().on("click", function () {
+                mm = 10; 
+                console.log(mm);
+            });
+            
+
+
+    });
+                
+           
+            
+    </script>
+</head>
+
+    
+    
+    
+    <body background="/public/images/bgimage.jpg">
+        
+        <nav class="navbar navbar-inverse">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="/about">Serial Sender</a>
+                </div>
+                <ul class="nav navbar-nav">
+                <li class="active"><a href="/">Home</a></li>
+                <li><a href="/upload">Upload</a></li>
+                </ul>
+            </div>
+        </nav>
+
+
+        
+                
+        <div class="container-fluid">
+            <div class="jumbotron">
+             <p>Plotter Funktionen</p>
+
+
+                <div class="btn-group btn-group-justified">
+                    <div class="btn-group">
+                    <button id="open" class="btn btn-info">Port öffnen!</button> 
+                    </div>
+                    <div class="btn-group">           
+                    <button id="unlock" class="btn btn-info">$X Entsperren!</button>
+                    </div>
+                    <div class="btn-group">
+                    <button id="homing" class="btn btn-info">$H Homing!</button>
+                    </div>
+                    <div class="btn-group">
+                    <button id="options" class="btn btn-info">Optionen!</button>
+                    </div>
+                    <div class="btn-group">
+                    <button id="softReset" class="btn btn-info">Soft Reset!</button>
+                    </div>
+                </div>
+
+                <div class="btn-group btn-group-justified">
+                    <div class="btn-group">
+                    <button id="close" class="btn btn-info">Port schließen!</button> 
+                    </div>
+                    <div class="btn-group">           
+                    <button id="goToZero" class="btn btn-info">0 Position!</button>
+                    </div>
+                    <div class="btn-group">
+                    <button id="sendeCode" class="btn btn-info">Code Senden</button>                  
+                    </div>
+                    <div class="btn-group">
+                    <button id="neuerButton" class="btn btn-info">neuerButton</button>                  
+                    </div>
+                    <div class="btn-group">
+                    <button id="senden" class="btn btn-info">Command!</button>                  
+                    </div>
+                </div>
+            
+            
+            <input id="command" type="text" class="form-control" placeholder="Enter command!" /><br />
+         
+            
+            <div class="container-fluid">
+                <div id="scrollpre" class="well-sm pre-scrollable">
+                    <ul id="liste"> </ul>
+                </div>
+            </div>
+
+           
+
+           
+      
+            
+            
+            
+
+        
+            
+         
+                <h3>Jog Mode (Rel!)</h3>                
+                
+                <div class="btn-group btn-group">
+            
+                        <div class="btn-group">
+                        <button id="xp" class="btn btn-info">X+</button> 
+                        </div>
+                        <div class="btn-group">           
+                        <button id="xm" class="btn btn-info">X-</button>
+                        </div>
+                        <div class="btn-group">
+                        <button id="yp" class="btn btn-info">Y+</button>                  
+                        </div>
+                        <div class="btn-group">
+                        <button id="ym" class="btn btn-info">Y-</button>                  
+                        </div>
+                </div>
+                
+                                         
+
+
+
+            
+
+
+                    <p id="XPos"></p>  
+                    <p id="YPos"></p>                 
+                    <p id="status"></p>                                  
+                        
+                
+           
+
+            
+                
+                <div id="myButtons" class="radio" data-toggle="buttons">
+                    <label class="radio-inline">
+                        <input type="radio" name="options" id="option1" autocomplete="off"><strong> 1 </strong>
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="options" id="option2" autocomplete="off"><strong> 5 </strong>
+                    </label>   
+                    <label class="radio-inline">
+                        <input type="radio" name="options" id="option3" autocomplete="off"><strong> 10 </strong>
+                    </label>    
+
+            </div>
+
+          
+            
+            
+            
+            
+            </div>
+        
+    </body>
+</html>

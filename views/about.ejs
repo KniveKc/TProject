@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta name="viewport" content="width=device-width, initial-scale=.0, user-scalable=no">
+    <meta(charset='utf-8' )>
+
+
+        <title>About</title>
+        <link href='https://fonts.googleapis.com/css?family=Raleway' rel='stylesheet' type='text/css'>
+        <link href="public/css/bootstrap.css" rel="stylesheet">
+
+        <style type="text/css">
+            body {
+                background-color: #000;
+            }
+            
+            .navbar-inverse {
+                background-color: #000;
+                border: 1px solid #555;
+            }
+            
+            .well {
+                background-color: #ddd;
+                border: 1px solid #000;
+                color: #000;
+            }
+        </style>
+
+
+</head>
+
+<body>
+    <!--background="/public/images/bgimage.jpg"-->
+    <nav class="navbar navbar-inverse">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="/about">Laser Server</a>
+            </div>
+            <ul class="nav navbar-nav">
+                <li><a href="/">Home</a></li>
+                <li><a>Hello, 
+                    <%= user.username %>
+                </a></li>
+                <li><a href="/logout">Logout</a></li>
+                <li><a href="/gtools">Tools</a></li>
+            </ul>
+        </div>
+    </nav>
+
+
+
+
+    <div class="container-fluid">
+        <div class="well">
+
+
+
+            <p>
+                <h1>Projektserver</h1>
+            </p>
+
+
+
+
+            <p> <strong> Erstellt von:</strong> </p>
+            <p> <strong> David Bransch </strong> </p>
+            <p> <strong> Kurfürstenstraße 38 </strong> </p>
+            <p> <strong> 52066 Aachen </strong> </p>
+            <p> <address><strong>E-Mail: </strong><a href="mailto:david.bransch@gmail.com">David.bransch@gmail.com</a><br/></address> </p>
+            <p> <strong>25.07.2017 </strong></p>
+
+
+
+            <div id="map" style="width:400px;height:360px;"></div>
+        </div>
+
+    </div>
+
+
+
+    <script>
+        function myMap() {
+            var myCenter = new google.maps.LatLng(50.771657343661616, 6.110029220581055);
+            var mapCanvas = document.getElementById("map");
+            var mapOptions = {
+                center: myCenter,
+                zoom: 13
+            };
+            var map = new google.maps.Map(mapCanvas, mapOptions);
+            var marker = new google.maps.Marker({
+                position: myCenter
+            });
+            marker.setMap(map);
+        }
+    </script>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDn_EdfMSLoerVk14gWPmunDahywRZSC9U&callback=myMap"></script>
+
+    <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
+
+
+
+</body>
+
+</html>
