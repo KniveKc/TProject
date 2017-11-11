@@ -34,76 +34,100 @@
         <link href="public/nowui/assets/css/now-ui-kit.css?v=1.1.0" rel="stylesheet" />
         <!-- CSS Just for demo purpose, don't include it in your project -->
         <link href="public/nowui/assets/css/demo.css" rel="stylesheet" />
-
-
-        <script src="https://cdn.socket.io/socket.io-1.4.3.js"></script>
-
+        <link href="public/nowui/assests/css/nouislider.min.css" rel="stylesheet">
 
         <script src="https://cdn.socket.io/socket.io-1.4.3.js"></script>
-
-        <script type="text/javascript" src="/public/js/paper.js"></script>
-        <!-- Load external PaperScript and associate it with myCanvas -->
-        <script type="text/paperscript" src="/public/js/myScript.js" canvas="myCanvas"></script>
-
         <!-- Scipt für diese Seite -->
         <script>
-            var socket = io.connect();
+            const socket = io.connect();
             var lastCommand = "";
-
-
-            socket.emit("welcomeServer", {
-                name: "David"
-            });
-
-
 
             $(document).ready(function() {
 
+                /*socket.once('ports', (data) => {
+    
+                    let i = 0;
+                    $.each(data, function(index, value) {
+                        $('#drop_body').append(`<a id="drop${i}" value="${value}" class="dropdown-item">${value}</a>`);
+                        i++;
+                    });
+    
+                    $('#drop0').click(() => {
+                        port = ($('#drop0')).attr('value')
+                        console.log(port);
+                        socket.emit('open_com', port)
+                    })
+                    $('#drop1').click(() => {
+                        port = ($('#drop1')).attr('value')
+                        console.log(port);
+                        socket.emit('open_com', port)
+                    })
+    
+                })*/
+
 
                 socket.on("percentage", function(percentage) {
-                    console.log(percentage);
+                    //console.log(percentage);
                     $('.progress-bar').text(parseFloat(percentage).toPrecision(4) + '%');
                     $('.progress-bar').width(percentage + '%');
                 });
 
-                socket.on("newCommand", function(commands) {
-                    $(function() {
-                        var pre = $("#scrollpre");
-                        pre.scrollTop(pre.prop("scrollHeight"));
-                    });
 
+                socket.on("newCommand", function(_grbl_daten) {
+                    console.log(_grbl_daten);
 
-
-                    if (commands.command != lastCommand) {
-                        $("#liste").append(
-                            $("<li></li>").text(commands.command)
-                        );
-                        lastCommand = commands.command;
+                    try {
+                        var grbl_daten = JSON.parse(_grbl_daten);
+                        //console.log(grbl_daten);
+                    } catch (e) {
+                        //console.log(e);
                     }
 
+                    if (grbl_daten !== undefined) {
+                        if (grbl_daten.command != lastCommand) {
 
+                            $("#liste").append(
+                                $("<li></li>").text(grbl_daten.command)
+                            );
+                            lastCommand = grbl_daten.command;
+                        }
 
-                    $("#MXPos").text(commands.MXPos + " mm");
-                    $("#MYPos").text(commands.MYPos + " mm");
-                    $("#status").text(commands.status);
-                    $("#WXPos").text(commands.WXPos + " mm");
-                    $("#WYPos").text(commands.WYPos + " mm");
+                        $("#MXPos").text(`${Math.round((grbl_daten.MPos.Y)*100)/100} mm`);
+                        $("#MYPos").text(`${Math.round((grbl_daten.MPos.X)*100)/100} mm`);
+                        $("#status").text(grbl_daten.status);
+                        $("#WXPos").text(`${Math.round((grbl_daten.MPos.X - grbl_daten.WCO.X)*100)/100} mm`);
+                        $("#WYPos").text(`${Math.round((grbl_daten.MPos.Y - grbl_daten.WCO.Y)*100)/100} mm`);
+                        $("#WCOX").text(`${Math.round((grbl_daten.WCO.X)*100)/100} mm`);
+                        $("#WCOY").text(`${Math.round((grbl_daten.WCO.Y)*100)/100} mm`);
+                        $("#feed").text(`${grbl_daten.FS.F} mm/min`);
+                        $("#spindle").text(grbl_daten.FS.S);
+                        $("#ovf").text(`${grbl_daten.Ov.F} %`);
+                        $("#ovr").text(`${grbl_daten.Ov.R} %`);
+                        $("#ovs").text(`${grbl_daten.Ov.S} %`);
 
-                    if (commands.status == "Alarm") {
-                        $("#status").css({
-                            color: "darkred"
-                        });
-                    } else if (commands.status == "Run") {
-                        $("#status").css({
-                            color: "orange"
-                        });
-                    } else if (commands.status == "Idle") {
-                        $("#status").css({
-                            color: "green"
+                        if (grbl_daten.status == "Alarm") {
+                            $("#status").css({
+                                color: "darkred"
+                            });
+                        } else if (grbl_daten.status == "Run") {
+                            $("#status").css({
+                                color: "red"
+                            });
+                        } else if (grbl_daten.status == "Idle") {
+                            $("#status").css({
+                                color: "green"
+                            });
+                        } else if (grbl_daten.status == "Hold") {
+                            $("#status").css({
+                                color: "orange"
+                            });
+                        }
+
+                        $(function() {
+                            var pre = $("#scrollpre");
+                            pre.scrollTop(pre.prop("scrollHeight"));
                         });
                     }
-
-
                 });
 
                 $("#unlock").click(function() {
@@ -135,6 +159,10 @@
                     socket.emit("goToZero");
                 });
 
+                $("#get").click(function() {
+                    socket.emit("get");
+                });
+
                 $("#options").click(function() {
                     socket.emit("options");
                 });
@@ -155,10 +183,39 @@
                 $("#resumeCode").click(function() {
                     socket.emit("resumeCode");
                 });
+
+                $("#stopCode").click(function() {
+                    socket.emit("stopCode");
+                });
                 //
 
-                $("#setZero").click(function() {
-                    socket.emit("setZero");
+                $("#setZero1").click(function() {
+                    socket.emit("setZero1");
+
+                });
+
+                $("#setZero2").click(function() {
+                    socket.emit("setZero2");
+
+                });
+
+                $("#setZero3").click(function() {
+                    socket.emit("setZero3");
+
+                });
+
+                $("#setZero4").click(function() {
+                    socket.emit("setZero4");
+
+                });
+
+                $("#setZero5").click(function() {
+                    socket.emit("setZero5");
+
+                });
+
+                $("#setZero6").click(function() {
+                    socket.emit("setZero6");
 
                 });
 
@@ -249,6 +306,40 @@
                     });
                 })
 
+                $('#G54').click(function() {
+                    socket.emit("command", {
+                        command: "G54"
+                    });
+                })
+
+                $('#G55').click(function() {
+                    socket.emit("command", {
+                        command: "G55"
+                    });
+                })
+
+                $('#G56').click(function() {
+                    socket.emit("command", {
+                        command: "G56"
+                    });
+                })
+
+                $('#G57').click(function() {
+                    socket.emit("command", {
+                        command: "G57"
+                    });
+                })
+                $('#G58').click(function() {
+                    socket.emit("command", {
+                        command: "G58"
+                    });
+                })
+                $('#G59').click(function() {
+                    socket.emit("command", {
+                        command: "G59"
+                    });
+                })
+
                 $('#sliderlaser').change(function() {
                     $('#outlaser').text(
                         $('#sliderlaser').val()
@@ -269,8 +360,9 @@
 
                     reader.onload = function(e) {
                         text = reader.result
+                        console.log(reader.result);
                         socket.emit("fileinput", text);
-                        //console.log(text);
+
                     }
 
                     reader.readAsText(this.files[0]);
@@ -279,12 +371,82 @@
 
                 }).click();
 
+                // Feed rate override
+
+                $("#feed_ovr_reset").click(function() {
+                    socket.emit("feed_ovr_reset");
+                });
+                $("#feed_ovr_plus").click(function() {
+                    socket.emit("feed_ovr_plus");
+                });
+                $("#feed_ovr_minus").click(function() {
+                    socket.emit("feed_ovr_minus");
+                });
+                $("#feed_ovr_fplus").click(function() {
+                    socket.emit("feed_ovr_fplus");
+                });
+                $("#feed_ovr_fminus").click(function() {
+                    socket.emit("feed_ovr_fminus");
+                });
+
+                $("#spindle_ovr_reset").click(function() {
+                    socket.emit("spindle_ovr_reset");
+                });
+                $("#spindle_ovr_plus").click(function() {
+                    socket.emit("spindle_ovr_plus");
+                });
+                $("#spindle_ovr_minus").click(function() {
+                    socket.emit("spindle_ovr_minus");
+                });
+                $("#spindle_ovr_fplus").click(function() {
+                    socket.emit("spindle_ovr_fplus");
+                });
+                $("#spindle_ovr_fminus").click(function() {
+                    socket.emit("spindle_ovr_fminus");
+                });
+
+
+                $("#spindle_ovr_stop").click(function() {
+                    socket.emit("spindle_ovr_stop");
+                });
+                $("#rapid_ovr_reset").click(function() {
+                    socket.emit("rapid_ovr_reset");
+                });
+                $("#rapid_ovr_medium").click(function() {
+                    socket.emit("rapid_ovr_medium");
+                });
+                $("#rapid_ovr_low").click(function() {
+                    socket.emit("rapid_ovr_low");
+                });
+
+
+
+
+
+                $('#sliderRegular').noUiSlider({
+                    start: 40,
+                    connect: "lower",
+                    range: {
+                        min: 0,
+                        max: 100
+                    }
+                });
+
+                $('#sliderDouble').noUiSlider({
+                    start: [20, 60],
+                    connect: true,
+                    range: {
+                        min: 0,
+                        max: 100
+                    }
+                });
+
+
+
+
             });
         </script>
         <!-- Script ende -->
-
-
-
         <!-- Von Bootstrap abweichendes styling -->
 
 
@@ -395,14 +557,12 @@
                 background-color: #000;
                 border: 1px solid #555;
             }
-        
             
             .card {
-                box-shadow: 2px 2px 20px rgba(0,0,0,0.3);
+                box-shadow: 2px 2px 20px rgba(0, 0, 0, 0.3);
                 border: none;
                 margin-bottom: 30px;
                 background-color: rgba(255, 255, 255, 0.1)!important;
-}
             }
             
             .well-1 {
@@ -459,7 +619,7 @@
                 min-height: 200px;
                 max-height: 260px;
                 overflow-y: hidden;
-                background-color: #CCC;
+                background-color: none;
                 font-family: Impact;
                 color: black
             }
@@ -473,23 +633,196 @@
                 padding-top: 20px;
                 padding-bottom: 0px;
             }
-
-            div.gToolsContainer{
+            
+            div.gToolsContainer {
                 padding-top: 6em;
             }
-
+            
             .navbar .navbar-brand {
                 font-size: 1.1em;
             }
-
-            .navbar .navbar-nav p{
+            
+            .navbar .navbar-nav p {
                 font-size: 0.9em;
             }
-
+            
             a.nav-link {
                 font-size: 0.9em !important;
             }
-
+            
+            .progress {
+                width: 150px;
+                height: 150px;
+                line-height: 150px;
+                background: none;
+                margin: 0 auto;
+                box-shadow: none;
+                position: relative;
+            }
+            
+            .progress:after {
+                content: "";
+                width: 100%;
+                height: 100%;
+                border-radius: 50%;
+                border: 12px solid #fff;
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
+            
+            .progress>span {
+                width: 50%;
+                height: 100%;
+                overflow: hidden;
+                position: absolute;
+                top: 0;
+                z-index: 1;
+            }
+            
+            .progress .progress-left {
+                left: 0;
+            }
+            
+            .progress .progress-bar {
+                width: 100%;
+                height: 100%;
+                background: none;
+                border-width: 12px;
+                border-style: solid;
+                position: absolute;
+                top: 0;
+            }
+            
+            .progress .progress-left .progress-bar {
+                left: 100%;
+                border-top-right-radius: 80px;
+                border-bottom-right-radius: 80px;
+                border-left: 0;
+                -webkit-transform-origin: center left;
+                transform-origin: center left;
+            }
+            
+            .progress .progress-right {
+                right: 0;
+            }
+            
+            .progress .progress-right .progress-bar {
+                left: -100%;
+                border-top-left-radius: 80px;
+                border-bottom-left-radius: 80px;
+                border-right: 0;
+                -webkit-transform-origin: center right;
+                transform-origin: center right;
+                animation: loading-1 1.8s linear forwards;
+            }
+            
+            .progress .progress-value {
+                width: 90%;
+                height: 90%;
+                border-radius: 50%;
+                background: #44484b;
+                font-size: 24px;
+                color: #fff;
+                line-height: 135px;
+                text-align: center;
+                position: absolute;
+                top: 5%;
+                left: 5%;
+            }
+            
+            .progress.blue .progress-bar {
+                border-color: #049dff;
+            }
+            
+            .progress.blue .progress-left .progress-bar {
+                animation: loading-2 1.5s linear forwards 1.8s;
+            }
+            
+            .progress.yellow .progress-bar {
+                border-color: #fdba04;
+            }
+            
+            .progress.yellow .progress-left .progress-bar {
+                animation: loading-3 1s linear forwards 1.8s;
+            }
+            
+            .progress.pink .progress-bar {
+                border-color: #ed687c;
+            }
+            
+            .progress.pink .progress-left .progress-bar {
+                animation: loading-4 0.4s linear forwards 1.8s;
+            }
+            
+            .progress.green .progress-bar {
+                border-color: #1abc9c;
+            }
+            
+            .progress.green .progress-left .progress-bar {
+                animation: loading-5 1.2s linear forwards 1.8s;
+            }
+            
+            @keyframes loading-1 {
+                0% {
+                    -webkit-transform: rotate(0deg);
+                    transform: rotate(0deg);
+                }
+                100% {
+                    -webkit-transform: rotate(180deg);
+                    transform: rotate(180deg);
+                }
+            }
+            
+            @keyframes loading-2 {
+                0% {
+                    -webkit-transform: rotate(0deg);
+                    transform: rotate(0deg);
+                }
+                100% {
+                    -webkit-transform: rotate(144deg);
+                    transform: rotate(144deg);
+                }
+            }
+            
+            @keyframes loading-3 {
+                0% {
+                    -webkit-transform: rotate(0deg);
+                    transform: rotate(0deg);
+                }
+                100% {
+                    -webkit-transform: rotate(90deg);
+                    transform: rotate(90deg);
+                }
+            }
+            
+            @keyframes loading-4 {
+                0% {
+                    -webkit-transform: rotate(0deg);
+                    transform: rotate(0deg);
+                }
+                100% {
+                    -webkit-transform: rotate(36deg);
+                    transform: rotate(36deg);
+                }
+            }
+            
+            @keyframes loading-5 {
+                0% {
+                    -webkit-transform: rotate(0deg);
+                    transform: rotate(0deg);
+                }
+                100% {
+                    -webkit-transform: rotate(126deg);
+                    transform: rotate(126deg);
+                }
+            }
+            
+            @media only screen and (max-width: 990px) {
+                .progress {
+                    margin-bottom: 20px;
+                }
+            }
         </style>
         <!-- Styling Ende -->
 </head>
@@ -497,7 +830,9 @@
 
 <!--  -->
 
-<body class="sidebar-collapse">
+<body>
+
+
     <!--background="/public/images/bgimage.jpg"-->
 
     <!-- NEW NAVBAR -->
@@ -508,279 +843,300 @@
                 <a class="navbar-brand" href="#">Laser Server</a>
 
                 <% if (user) { %>
-                <button class="navbar-toggler navbar-toggler" type="button" data-toggle="collapse" data-target="#navigationbarTop" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-bar bar1"></span>
-                    <span class="navbar-toggler-bar bar2"></span>
-                    <span class="navbar-toggler-bar bar3"></span>
+                    <button class="navbar-toggler navbar-toggler" type="button" data-toggle="collapse" data-target="#navigationbarTop" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
+
                 </button>
-                <% } %>
+                    <% } %>
             </div>
 
             <% if (user) { %>
                 <div class="collapse navbar-collapse justify-content-end" id="navigationbarTop" data-nav-image="../assets/img/blurred-image-1.jpg">
                     <ul class="navbar-nav">
-                    <% if (user) { %>
-                        <li class="nav-item"><a class="nav-link" data-placement="bottom" target=""><i class="fa fa-user-circle-o"></i><p class="d-lg d-xl"><%= user.username %></p></a></li>
-                        <li class="nav-item"><a class="nav-link" href="/gtools">Tools</a></li>
+                        <% if (user) { %>
+                            <li class="nav-item"><a class="nav-link" data-placement="bottom" target=""><i class="fa fa-user-circle-o"></i><p class="d-lg d-xl"><%= user.username %></p></a></li>
+                            <li class="nav-item"><a class="nav-link" href="/gtools">Tools</a></li>
 
-                        <% if (user.username == 'admin') { %>
-                        <li class="nav-item"><a class="nav-link" href="/admin">Admin_DB</a></li>
-                        <% } %>
-                    <% } %>
+                            <% if (user.username == 'admin') { %>
+                                <li class="nav-item"><a class="nav-link" href="/admin">Admin_DB</a></li>
+                                <li class="nav-item"><a class="nav-link" href="/optionen">Optionen</a></li>
+                                <% } %>
+                                    <% } %>
                     </ul>
                     <% if (user) { %>
-                    <ul class="navbar-nav">
-                        <li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
-                    </ul>
-                    
-                    <% } %>
+                        <ul class="navbar-nav">
+                            <li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
+                        </ul>
+
+                        <% } %>
                 </div>
-            <% } %>
+                <% } %>
         </div>
     </nav>
     <!-- NEW NAVBAR END -->
 
-<div class="page-header" filter-color="orange">
+    <div class="page-header" filter-color="orange">
 
-    <div class="container gToolsContainer">
+        <div class="container gToolsContainer">
 
-        <div class="row">
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body">
-                    <div class="row">
-                        <div class="btn-group btn-group-justified">
-                            <div class="btn-group">
-                                <button id="open" class="btn btn-primary btn-round">Port öffnen!</button>
-                            </div>
-                            <div class="btn-group">
-                                <button id="close" class="btn btn-primary btn-round">Port schließen!</button>
-                            </div>
-                        </div>
-                        <br>
-                        <div class="btn-group btn-group-justified">
-                            <div class="btn-group">
-                                <button id="senden" class="btn btn-primary btn-round">Befehl senden!</button>
-                            </div>
-                        </div>
-                        <br>
-                        <input id="command" type="text" class="form-control" placeholder="Enter command!" />
-                        <br>
-                        <div class="btn-group btn-group-justified">
-                            <div class="btn-group">
-                                <a id="sendeCode" href="#" class="btn btn-primary btn-round"><span class="glyphicon glyphicon-play"></span> Start</a>
-                            </div>
-                            <div class="btn-group">
-                                <a id="pauseCode" href="#" class="btn btn-primary btn-round"><span class="glyphicon glyphicon-pause"></span> Pause</a>
-                            </div>
-                            <div class="btn-group">
-                                <a id="resumeCode" href="#" class="btn btn-primary btn-round"><span class="glyphicon glyphicon-resume"></span> Resume</a>
-                            </div>
-                        </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
 
-                        <br>
-                        <div class="btn-group btn-group-justified">
-                            <div class="btn-group">
-                                <label class="btn btn-primary btn-round"><span class="glyphicon glyphicon-folder-open"></span> 
+                                <!--
+                                <div class="dropdown" id="dd">
+                                    <button class="btn btn-primary dropdown-toggle" type="button" id="drop_btn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                              Com Ports
+                                            </button>
+                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="drop_body">
+
+                                    </div>
+                                </div>
+                                -->
+
+                                <button id="open" class="btn btn-primary">Port öffnen!</button>
+                                <button id="close" class="btn btn-primary">Port schließen!</button>
+                                <br>
+                                <button id="senden" class="btn btn-primary">Befehl senden!</button>
+                                <br>
+                                <input id="command" type="text" class="form-control" placeholder="Enter command!" />
+                                <br>
+                                <button id="sendeCode" class="btn btn-primary">Start</button>
+                                <button id="pauseCode" class="btn btn-primary">Pause</button>
+                                <button id="resumeCode" class="btn btn-primary">Resume</button>
+                                <button id="stopCode" class="btn btn-primary">Cancel</button>
+                                <br>
+                                <label class="btn btn-primary"><span class="glyphicon glyphicon-folder-open"></span> 
                                 Browse <input id="ul" type="file" style="position: fixed; top: -100em" accept="text/*"></input>
-                            </label>
+                                </label>
+                                <button id="options" class="btn btn-primary">Optionen!</button>
+                                <button id="softReset" class="btn btn-primary">Soft Reset!</button>
+
                             </div>
-                        </div>
 
-
-                        <div class="btn-group btn-group-justified">
-                            <div class="btn-group">
-                                <button id="options" class="btn btn-primary btn-round">Optionen!</button>
+                            <div class="row1">
+                                <div class="progress-container progress-warning">
+                                    <div class="progress">
+                                        <div id="progress-bar" class="progress-bar" role="progressbar"></div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="btn-group">
-                                <button id="softReset" class="btn btn-primary btn-round">Soft Reset!</button>
-                            </div>
-                        </div>
-                    </div>
 
-
-
-                    <div class="row1">
-                        <div class="progress-container progress-warning">
-                            <div class="progress">
-                                <div class="progress-bar" role="progressbar" ></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!--  
-
-                    #PROGRESS BAR CODE
-
-                    <div class="progress-container progress-warning">
-                        <span class="progress-badge">Warnung </span>
-                        <div class="progress">
-                            <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100">
-                                <span class="progress-value">60%</span>
-                            </div>
-                        </div>
-                    </div>
-
-                     -->
-
-
-                </div>
-                </div>
-            </div>
-
-
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body">
-                    <div class="container-fluid">
-                        <strong>Konsole</strong>
-                        <div id="scrollpre" class="well-sm pre-scrollable">
-                            <ul id="liste" class="v"> </ul>
                         </div>
                     </div>
                 </div>
+
+
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="container-fluid">
+                                <strong>Konsole</strong>
+                                <div id="scrollpre" class="well-sm pre-scrollable">
+                                    <ul id="liste" class="v"> </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="sliderRegular" class="slider"></div>
+                        <div id="sliderDouble" class="slider slider-info"></div>
+
+
+
+                    </div>
                 </div>
-            </div>
 
 
 
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
 
-                    <div class="btn-group btn-group-justified">
+                            <button id="xp" class="btn btn-primary">X+</button>
+                            <button id="xm" class="btn btn-primary">X-</button>
+                            <button id="yp" class="btn btn-primary">Y+</button>
+                            <button id="ym" class="btn btn-primary">Y-</button>
+                            <button id="unlock" class="btn btn-primary">$X Entsperren!</button>
+                            <button id="homing" class="btn btn-primary">$H Homing!</button>
 
-                        <div class="btn-group">
-                            <button id="xp" class="btn btn-primary btn-round">X+</button>
-                        </div>
-                        <div class="btn-group">
-                            <button id="xm" class="btn btn-primary btn-round">X-</button>
-                        </div>
-
-                        <div class="btn-group">
-                            <button id="yp" class="btn btn-primary btn-round">Y+</button>
-                        </div>
-                        <div class="btn-group">
-                            <button id="ym" class="btn btn-primary btn-round">Y-</button>
-                        </div>
-
-                    </div>
-                    <div class="btn-group btn-group-justified">
-                        <div class="btn-group">
-                            <button id="unlock" class="btn btn-primary btn-round">$X Entsperren!</button>
-                        </div>
-                        <div class="btn-group">
-                            <button id="homing" class="btn btn-primary btn-round">$H Homing!</button>
-                        </div>
-                    </div>
-
-
-
-
-                    <div class="well-lg">
-                        <div class="row">
-                            <div class="col-md-4">
+                            <div class="well-lg">
                                 <div class="row">
-                                    <label>|Machine Position|</label>
-                                </div>
-                                <div class="row">
-                                    <label>X:</label>
-                                    <strong class="panel panel-default" id="MXPos">0 mm</strong>
+                                    <div class="col-md-4">
+                                        <div class="row">
+                                            <label>|M Position|</label>
+                                        </div>
+                                        <div class="row">
+                                            <label>X:</label>
+                                            <strong class="panel panel-default" id="MXPos">0 mm</strong>
+                                        </div>
+
+                                        <div class="row">
+                                            <label>Y:</label>
+                                            <strong class="panel panel-default" id="MYPos">0 mm</strong>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="row">
+                                            <label>|W Position|</label>
+                                        </div>
+                                        <div class="row">
+                                            <label>X:</label>
+                                            <strong class="panel panel-default" id="WXPos">0 mm</strong>
+                                        </div>
+
+                                        <div class="row">
+                                            <label>Y:</label>
+                                            <strong class="panel panel-default" id="WYPos">0 mm</strong>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="row">
+                                            <label>|Work Offset|</label>
+                                        </div>
+                                        <div class="row">
+                                            <label>X:</label>
+                                            <strong class="panel panel-default" id="WCOX">0 mm</strong>
+                                        </div>
+
+                                        <div class="row">
+                                            <label>Y:</label>
+                                            <strong class="panel panel-default" id="WCOY">0 mm</strong>
+                                        </div>
+                                    </div>
+
                                 </div>
 
-                                <div class="row">
-                                    <label>Y:</label>
-                                    <strong class="panel panel-default" id="MYPos">0 mm</strong>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="row">
-                                    <label>|Work Position|</label>
-                                </div>
-                                <div class="row">
-                                    <label>X:</label>
-                                    <strong class="panel panel-default" id="WXPos">0 mm</strong>
-                                </div>
 
-                                <div class="row">
-                                    <label>Y:</label>
-                                    <strong class="panel panel-default" id="WYPos">0 mm</strong>
-                                </div>
-                            </div>
-
-
-
-
-                            <div class="col-md-4">
                                 <div class="row">
                                     <label>|Status:|</label>
-                                </div>
-                                <div class="row">
+
                                     <strong id="status" style="color: darkred">Status</strong>
                                 </div>
+
+
+                                <div class="row">
+
+                                    <input id="sliderx" type="range" min="0.1" max="20" step="0.1" value="0.1"></input>
+                                    <p id="outx">0.1</p>
+
+
+                                    <input id="slidery" type="range" min="0.1" max="20" step="0.1" value="0.1"></input>
+                                    <p id="outy">0.1</p>
+
+                                </div>
+
+                                <div class="row">
+                                    <label>|Feed|</label>
+                                </div>
+                                <div class="row">
+                                    <label>Feed rate: </label>
+                                    <strong class="panel panel-default" id="feed">0 mm/min</strong>
+                                </div>
+
+                                <div class="row">
+                                    <label>Laser Pwm:</label>
+                                    <strong class="panel panel-default" id="spindle">0</strong>
+                                </div>
+
+                                <div class="row">
+                                    <label>|Override|</label>
+                                </div>
+                                <div class="row">
+                                    <label>Ovr Feed:</label>
+                                    <strong class="panel panel-default" id="ovf">%</strong>
+                                </div>
+
+                                <div class="row">
+                                    <label>Ovr Rapid:</label>
+                                    <strong class="panel panel-default" id="ovr">%</strong>
+                                </div>
+
+                                <div class="row">
+                                    <label>Ovr Laser PWM:</label>
+                                    <strong class="panel panel-default" id="ovs">%</strong>
+                                </div>
+
                             </div>
 
+                            <button id="goToZero" class="btn btn-primary">Go to Zero</button>
+                            <button id="get" class="btn btn-primary">Get</button>
 
-                        </div>
-
-
-                        <div class="row">
-
-                            <input id="sliderx" type="range" min="0.1" max="20" step="0.1" value="0.1"></input>
-                            <p id="outx">0.1</p>
-
-                            <input id="slidery" type="range" min="0.1" max="20" step="0.1" value="0.1"></input>
-                            <p id="outy">0.1</p>
-
-                        </div>
-
-                    </div>
-
-
-
-                    <div class="btn-group btn-group-justified">
-                        <div class="btn-group">
-                            <button id="goToZero" class="btn btn-primary btn-round">Go to Zero</button>
-                        </div>
-                        <div class="btn-group">
-                            <button id="setZero" class="btn btn-primary btn-round">Reset Work Zero</button>
                         </div>
                     </div>
+                    <!--Well end -->
 
-
-                </div>
-                </div>
-                <!--Well end -->
-
-            </div>
-        </div>
-
-
-        <div class="row">
-            <div class="col-md-4">
-               <div class="card">
-                    <div class="card-body">
-                    <div class="container-fluid">
-                        <canvas width="450" height="400" id="myCanvas"></canvas>
-                    </div>
-
-                </div>
                 </div>
             </div>
 
 
-            <div class="col-md-8">
 
-                <% if (user.username == 'admin') { %>
 
+            <div class="row">
+                <div class="col-md-4">
                     <div class="card">
-                    <div class="card-body">
-                        <strong>Live positioning</strong>
-                        <div>
-                            <strong>X-Axis</strong>
-                            <input id="sliderx1" type="range" min="0.0" max="329" step="0.5" value="0"></input>
-                            <p id="outx1">0.0</p>
-                            <strong>Y-Axis<strong>
+                        <div class="card-body">
+                            <div class="container-fluid">
+
+                                <div>
+                                    <button id="G54" class="btn btn-primary">G54</button>
+                                    <button id="G55" class="btn btn-primary">G55</button>
+                                    <button id="G56" class="btn btn-primary">G56</button>
+                                    <button id="G57" class="btn btn-primary">G57</button>
+                                    <button id="G58" class="btn btn-primary">G58</button>
+                                    <button id="G59" class="btn btn-primary">G59</button>
+                                </div>
+
+                                <div>
+                                    <button id="setZero1" class="btn btn-primary">Set G54 Zero</button>
+                                    <button id="setZero2" class="btn btn-primary">Set G55 Zero</button>
+                                    <button id="setZero3" class="btn btn-primary">Set G56 Zero</button>
+                                    <button id="setZero4" class="btn btn-primary">Set G57 Zero</button>
+                                    <button id="setZero5" class="btn btn-primary">Set G58 Zero</button>
+                                    <button id="setZero6" class="btn btn-primary">Set G59 Zero</button>
+                                </div>
+
+                                <div>
+                                    <button id="feed_ovr_reset" class="btn btn-primary">F 100%</button>
+                                    <button id="feed_ovr_plus" class="btn btn-primary">F +10%</button>
+                                    <button id="feed_ovr_minus" class="btn btn-primary">F -10</button>
+                                    <button id="feed_ovr_fplus" class="btn btn-primary">F +1%</button>
+                                    <button id="feed_ovr_fminus" class="btn btn-primary">F -1%</button>
+                                </div>
+
+                                <div>
+                                    <button id="rapid_ovr_reset" class="btn btn-primary">R 100%</button>
+                                    <button id="rapid_ovr_medium" class="btn btn-primary">R MEDIUM</button>
+                                    <button id="rapid_ovr_low" class="btn btn-primary">R LOW</button>
+
+                                    <button id="spindle_ovr_reset" class="btn btn-primary">S 100%</button>
+                                    <button id="spindle_ovr_plus" class="btn btn-primary">S +10%</button>
+                                    <button id="spindle_ovr_minus" class="btn btn-primary">S -10%</button>
+                                    <button id="spindle_ovr_fplus" class="btn btn-primary">S +1%</button>
+                                    <button id="spindle_ovr_fminus" class="btn btn-primary">S -1%</button>
+                                    <button id="spindle_ovr_stop" class="btn btn-primary">S STOP</button>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
+                    <div class="col-md-8">
+                        <div class="card">
+                            <% if (user.username == 'admin') { %>
+
+                                <div class="card">
+                                    <div class="card-body">
+                                        <strong>Live positioning</strong>
+                                        <div>
+                                            <strong>X-Axis</strong>
+                                            <input id="sliderx1" type="range" min="0.0" max="329" step="0.5" value="0"></input>
+                                            <p id="outx1">0.0</p>
+                                            <strong>Y-Axis<strong>
+                                        
                         <input id="slidery1" type="range" min="0.0" max="382" step="0.5" value="0"></input>
                         <p id="outy1">0.0</p>
                     </div>
@@ -793,29 +1149,33 @@
                     <div class="card-body">
                     <div class="btn-group btn-group-justified">
                         <div class="btn-group">
-                            <button id="laserOn" class="btn btn-primary btn-round">Laser On!</button>
+                            <button id="laserOn" class="btn btn-primary">Laser On!</button>
                         </div>
                         <div class="btn-group">
-                            <button id="laserOff" class="btn btn-primary btn-round">Laser Off!</button>
+                            <button id="laserOff" class="btn btn-primary">Laser Off!</button>
                         </div>
                     </div>
                         <div>
                         <strong>Laser PWM</strong>
-                            <input id="sliderlaser" type="range" min="9" max="255" step="1" value="0"></input>
-                            <p id="outlaser">0</p>
+                                            <input id="sliderlaser" type="range" min="9" max="255" step="1" value="0"></input>
+                                            <p id="outlaser">0</p>
+                                        </div>
+
+                                        <% } else { %>
+                                            <% } %>
+
+
+                                    </div>
+                                </div>
                         </div>
-
-                        <% } else { %>
-                            <% } %>
-
-
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-</div>
 </body>
+<footer>
 
 </footer>
 

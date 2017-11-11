@@ -1,0 +1,205 @@
+[{
+        "$-Code": 0,
+        "Setting": "Step pulse time",
+        "Units": "microseconds",
+        "Setting Description": "Sets time length per step. Minimum 3usec."
+    },
+    {
+        "$-Code": 1,
+        "Setting": "Step idle delay",
+        "Units": "milliseconds",
+        "Setting Description": "Sets a short hold delay when stopping to let dynamics settle before disabling steppers. Value 255 keeps motors enabled with no delay."
+    },
+    {
+        "$-Code": 2,
+        "Setting": "Step pulse invert",
+        "Units": "mask",
+        "Setting Description": "Inverts the step signal. Set axis bit to invert (00000ZYX)."
+    },
+    {
+        "$-Code": 3,
+        "Setting": "Step direction invert",
+        "Units": "mask",
+        "Setting Description": "Inverts the direction signal. Set axis bit to invert (00000ZYX)."
+    },
+    {
+        "$-Code": 4,
+        "Setting": "Invert step enable pin",
+        "Units": "boolean",
+        "Setting Description": "Inverts the stepper driver enable pin signal."
+    },
+    {
+        "$-Code": 5,
+        "Setting": "Invert limit pins",
+        "Units": "boolean",
+        "Setting Description": "Inverts the all of the limit input pins."
+    },
+    {
+        "$-Code": 6,
+        "Setting": "Invert probe pin",
+        "Units": "boolean",
+        "Setting Description": "Inverts the probe input pin signal."
+    },
+    {
+        "$-Code": 10,
+        "Setting": "Status report options",
+        "Units": "mask",
+        "Setting Description": "Alters data included in status reports."
+    },
+    {
+        "$-Code": 11,
+        "Setting": "Junction deviation",
+        "Units": "millimeters",
+        "Setting Description": "Sets how fast Grbl travels through consecutive motions. Lower value slows it down."
+    },
+    {
+        "$-Code": 12,
+        "Setting": "Arc tolerance",
+        "Units": "millimeters",
+        "Setting Description": "Sets the G2 and G3 arc tracing accuracy based on radial error. Beware: A very small value may effect performance."
+    },
+    {
+        "$-Code": 13,
+        "Setting": "Report in inches",
+        "Units": "boolean",
+        "Setting Description": "Enables inch units when returning any position and rate value that is not a settings value."
+    },
+    {
+        "$-Code": 20,
+        "Setting": "Soft limits enable",
+        "Units": "boolean",
+        "Setting Description": "Enables soft limits checks within machine travel and sets alarm when exceeded. Requires homing."
+    },
+    {
+        "$-Code": 21,
+        "Setting": "Hard limits enable",
+        "Units": "boolean",
+        "Setting Description": "Enables hard limits. Immediately halts motion and throws an alarm when switch is triggered."
+    },
+    {
+        "$-Code": 22,
+        "Setting": "Homing cycle enable",
+        "Units": "boolean",
+        "Setting Description": "Enables homing cycle. Requires limit switches on all axes."
+    },
+    {
+        "$-Code": 23,
+        "Setting": "Homing direction invert",
+        "Units": "mask",
+        "Setting Description": "Homing searches for a switch in the positive direction. Set axis bit (00000ZYX) to search in negative direction."
+    },
+    {
+        "$-Code": 24,
+        "Setting": "Homing locate feed rate",
+        "Units": "mm/min",
+        "Setting Description": "Feed rate to slowly engage limit switch to determine its location accurately."
+    },
+    {
+        "$-Code": 25,
+        "Setting": "Homing search seek rate",
+        "Units": "mm/min",
+        "Setting Description": "Seek rate to quickly find the limit switch before the slower locating phase."
+    },
+    {
+        "$-Code": 26,
+        "Setting": "Homing switch debounce delay",
+        "Units": "milliseconds",
+        "Setting Description": "Sets a short delay between phases of homing cycle to let a switch debounce."
+    },
+    {
+        "$-Code": 27,
+        "Setting": "Homing switch pull-off distance",
+        "Units": "millimeters",
+        "Setting Description": "Retract distance after triggering switch to disengage it. Homing will fail if switch isn't cleared."
+    },
+    {
+        "$-Code": 30,
+        "Setting": "Maximum spindle speed",
+        "Units": "RPM",
+        "Setting Description": "Maximum spindle speed. Sets PWM to 100% duty cycle."
+    },
+    {
+        "$-Code": 31,
+        "Setting": "Minimum spindle speed",
+        "Units": "RPM",
+        "Setting Description": "Minimum spindle speed. Sets PWM to 0.4% or lowest duty cycle."
+    },
+    {
+        "$-Code": 32,
+        "Setting": "Laser-mode enable",
+        "Units": "boolean",
+        "Setting Description": "Enables laser mode. Consecutive G1/2/3 commands will not halt when spindle speed is changed."
+    },
+    {
+        "$-Code": 100,
+        "Setting": "X-axis travel resolution",
+        "Units": "step/mm",
+        "Setting Description": "X-axis travel resolution in steps per millimeter."
+    },
+    {
+        "$-Code": 101,
+        "Setting": "Y-axis travel resolution",
+        "Units": "step/mm",
+        "Setting Description": "Y-axis travel resolution in steps per millimeter."
+    },
+    {
+        "$-Code": 102,
+        "Setting": "Z-axis travel resolution",
+        "Units": "step/mm",
+        "Setting Description": "Z-axis travel resolution in steps per millimeter."
+    },
+    {
+        "$-Code": 110,
+        "Setting": "X-axis maximum rate",
+        "Units": "mm/min",
+        "Setting Description": "X-axis maximum rate. Used as G0 rapid rate."
+    },
+    {
+        "$-Code": 111,
+        "Setting": "Y-axis maximum rate",
+        "Units": "mm/min",
+        "Setting Description": "Y-axis maximum rate. Used as G0 rapid rate."
+    },
+    {
+        "$-Code": 112,
+        "Setting": "Z-axis maximum rate",
+        "Units": "mm/min",
+        "Setting Description": "Z-axis maximum rate. Used as G0 rapid rate."
+    },
+    {
+        "$-Code": 120,
+        "Setting": "X-axis acceleration",
+        "Units": "mm/sec^2",
+        "Setting Description": "X-axis acceleration. Used for motion planning to not exceed motor torque and lose steps."
+    },
+    {
+        "$-Code": 121,
+        "Setting": "Y-axis acceleration",
+        "Units": "mm/sec^2",
+        "Setting Description": "Y-axis acceleration. Used for motion planning to not exceed motor torque and lose steps."
+    },
+    {
+        "$-Code": 122,
+        "Setting": "Z-axis acceleration",
+        "Units": "mm/sec^2",
+        "Setting Description": "Z-axis acceleration. Used for motion planning to not exceed motor torque and lose steps."
+    },
+    {
+        "$-Code": 130,
+        "Setting": "X-axis maximum travel",
+        "Units": "millimeters",
+        "Setting Description": "Maximum X-axis travel distance from homing switch. Determines valid machine space for soft-limits and homing search distances."
+    },
+    {
+        "$-Code": 131,
+        "Setting": "Y-axis maximum travel",
+        "Units": "millimeters",
+        "Setting Description": "Maximum Y-axis travel distance from homing switch. Determines valid machine space for soft-limits and homing search distances."
+    },
+    {
+        "$-Code": 132,
+        "Setting": "Z-axis maximum travel",
+        "Units": "millimeters",
+        "Setting Description": "Maximum Z-axis travel distance from homing switch. Determines valid machine space for soft-limits and homing search distances."
+    }
+]

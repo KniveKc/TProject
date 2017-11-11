@@ -1,10 +1,5 @@
 var mysql = require('mysql');
-var con = mysql.createConnection({
-    host: '127.0.0.1',
-    user: 'root',
-    password: 'root',
-    database: 'mydb'
-});
+var con = require('../db/dbcon.js');
 
 
 /*
@@ -14,13 +9,16 @@ var records = [
 */
 
 exports.findById = function(id, cb) {
-    con.query("select * from user where id = " + id, function(err, result) { //process.nextTick(function() {
+
+    var sql = (`select * from user where id = "${id}"`);
+
+    con.query(sql, function(err, result) { //process.nextTick(function() {
         //console.log(result);
         if (err) throw err;
-        var idx = 0;
+        var i = 0;
         //console.log(idx);
-        if (result[idx]) {
-            cb(null, result[idx]);
+        if (result[i]) {
+            cb(null, result[i]);
             //console.log(result.idx);
         } else {
             cb(new Error('User ' + id + ' does not exist'));
@@ -29,7 +27,10 @@ exports.findById = function(id, cb) {
 };
 
 exports.findByUsername = function(username, cb) {
-    con.query("select * from user where username = " + '"' + username + '"', function(err, result) { //process.nextTick(function() {
+
+    var sql = (`select * from user where username = "${username}"`);
+
+    con.query(sql, function(err, result) { //process.nextTick(function() {
         //console.log(result);
         for (var i = 0, len = result.length; i < len; i++) {
             var record = result[i];

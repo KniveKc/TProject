@@ -1,54 +1,22 @@
+const _ = require('lodash');
+const grbl = require('../grbl/grbl');
+const fs = require('fs');
+const serialport = require('serialport'); // Serialport Modul einbinden
+const SerialPort = serialport; // Lokale instanz von Serialport erstellen
+
+const debug = false;
+
 var status = 0;
-
-var _ = require('lodash');
-
-var re1 = new RegExp(/[,;<;>;:]/); // RegExp erstellen
-var re2 = new RegExp(/[,;:]/);
-var opt = new RegExp(/\$/);
-
 var y = 0;
 var handleState = 0;
+var config = {};
 
-//console.log(codeLength);
-
-
-var serialport = require('serialport'); // Serialport Modul einbinden
-SerialPort = serialport; // Lokale instanz von Serialport erstellen
-// get port name from the command line:
-portName = "/dev/ttyUSB0";
-//portName = "com4";
-
-SerialPort.list(function(err, ports) {
-    ports.forEach(function(port) {
-        //console.log(port.comName);
-
-        //console.log(port.pnpId);
-        //console.log(port.manufacturer);
-        return ports;
-    });
-    return ports;
-});
+noop = () => { return 0; };
 
 
+var portName = '/dev/ttyUSB0';
 
-//var rti = { "status": " ", "MXPos": 0, "MYPos": 0, "nachricht": " ", "WXpos": 0, "WYPos": 0 }; // Realtime Input Object
-
-var rti = {
-
-    status: "",
-    MXPos: 0,
-    MYPos: 0,
-    nachricht: "",
-    WXPos: 0,
-    WYPos: 0
-
-};
-
-var options = {
-
-};
-
-var myPort = new SerialPort(portName, { //Neues Serialport-Objekt erstellen 
+const myPort = new SerialPort(portName, { //Neues Serialport-Objekt erstellen 
     baudRate: 115200, //Baudrate auf 115200 setzten
     autoOpen: false, //Port soll sich nicht automatisch öffnen
     parser: serialport.parsers.readline("\n") //Datenpacket endet mit Zeilenumbruch
@@ -60,90 +28,346 @@ myPort.on('data', read);
 myPort.on('close', showPortClose);
 myPort.on('error', showError);
 
+process.on('message', (msg) => {
+    if (debug === true) console.log('Message from parent:', msg);
+    if (msg.text !== undefined) { sendText(msg.text); }
+    if (msg.cmd !== undefined) {
+        (msg.cmd === 'open') ? myPort.open(): noop();
+        (msg.cmd === 'close') ? myPort.close(): noop();
+        (msg.cmd === 'pause') ? pause(): noop();
+        (msg.cmd === 'resume') ? resume(): noop();
+        (msg.cmd === 'stop') ? stop(): noop();
+    }
+    if (msg.code) {
+        callCode(msg.code, msg.x);
 
+    }
+});
+
+var grbl_daten = {
+
+    status: "",
+    MPos: {
+        X: 0,
+        Y: 0
+    },
+    WPos: {
+        X: 0,
+        Y: 0
+    },
+    command: "",
+    WCO: {
+        X: 0,
+        Y: 0
+    },
+    FS: {
+        F: 0,
+        S: 0
+    },
+    Ov: {
+        S: 0,
+        R: 0,
+        F: 0
+    }
+};
+
+
+var options = {
+
+    $0: "",
+    $1: "",
+    $2: "",
+    $3: "",
+    $4: "",
+    $5: "",
+    $6: "",
+    $10: "",
+    $11: "",
+    $12: "",
+    $13: "",
+    $20: "",
+    $21: "",
+    $22: "",
+    $23: "",
+    $24: "",
+    $25: "",
+    $26: "",
+    $27: "",
+    $30: "",
+    $31: "",
+    $32: "",
+    $100: "",
+    $101: "",
+    $102: "",
+    $110: "",
+    $111: "",
+    $112: "",
+    $120: "",
+    $121: "",
+    $122: "",
+    $130: "",
+    $131: "",
+    $132: ""
+};
+
+var grbl_data_printout = {
+    G54: {
+        X: 0,
+        Y: 0
+    },
+    G55: {
+        X: 0,
+        Y: 0
+    },
+    G56: {
+        X: 0,
+        Y: 0
+    },
+    G57: {
+        X: 0,
+        Y: 0
+    },
+    G58: {
+        X: 0,
+        Y: 0
+    },
+    G59: {
+        X: 0,
+        Y: 0
+    },
+    G28: {
+        X: 0,
+        Y: 0
+    },
+    G30: {
+        X: 0,
+        Y: 0
+    },
+    G92: {
+        X: 0,
+        Y: 0
+    },
+    TLO: 0,
+    PRB: {
+        X: 0,
+        Y: 0
+    }
+
+}
 
 function showPortOpen(err) {
-    if (err)
-        console.log(err);
-    else
-        console.log('serialport open. Data rate: ' + myPort.options.baudRate + " Port:" + portName);
-    console.log(myPort.isOpen());
+    if (err) console.log(err);
+    console.log('serialport open. Data rate: ' + myPort.options.baudRate + " Port:" + portName);
+    if (debug === true) console.log('Port open = ' + myPort.isOpen());
 
     setInterval(function sendStatus(err) {
         if (myPort.isOpen()) {
-            myPort.write("?");
-            //Sende ein ? zur statusabfrage von GRBL
-
+            myPort.write("?"); //Sende ein ? zur Statusabfrage von GRBL, GRBL antwortet mit einem String: <Idle|MPos:0.000,0.000,0.000|FS:0.0,0>
         }
+
     }, 200);
 }
 
 
 
 function read(data) {
-    //console.log("Serial in << " + data);
-    // console.log(typeof data);
-    module.exports.data = rti;
+
+    if (debug === true) console.log("\x1b[32m\x1b[40m", data);
+
+    var re1 = new RegExp(/[,;<>;:]/); // RegExp erstellen
+    var re2 = new RegExp(/[,;:|]/);
+    var re3 = new RegExp(/\$*[0-9]/);
+
+    //console.log(data.match(pattern));
+    if (data.match(/[<].+[>]/)) {
+
+        var _data = _.replace(data, re1, '');
+        var obj = _.split(_data, re2);
+
+        grbl_daten.status = obj[0];
+        grbl_daten.FS.F = parseFloat(obj[6]);
+        grbl_daten.FS.S = parseFloat(obj[7]);
+
+        if (obj[1].match(/MPos/)) {
+            grbl_daten.MPos.X = parseFloat(obj[2]);
+            grbl_daten.MPos.Y = parseFloat(obj[3]);
+        } else if (obj[1].match(/WPos/)) {
+            grbl_daten.WPos.X = parseFloat(obj[2]);
+            grbl_daten.WPos.Y = parseFloat(obj[3]);
+        }
 
 
-    //console.log(res); // Ausgangs-String
-
-    var res2 = _.replace(data, re1, '');
-    var obj = _.split(res2, re2);
-    //console.log(obj);
-
-
-    if ([obj[0]] == "\r") {
-        //console.log("");
-
-    } else if (obj[1] == "Alarm lock\r") {
-        //console.log("Alarm lock!");
-        rti.nachricht = "Alarm lock";
-
-    } else if (obj[0] == "error") {
-        //console.log("Alarm lock!");
-        rti.nachricht = obj[0] + obj[1] + obj[2];
-
-
-
-    } else if (obj[0] == "[Caution" || obj[1] == "Unlocked]\r") {
-        //console.log("Unlocked!");
-        rti.nachricht = "Caution Unlocked!";
-
-    } else if ([obj[0]] == "ok\r") {
-        //console.log("OK");
-        rti.nachricht = "OK";
+        if (obj[8] == "WCO") {
+            grbl_daten.WCO.X = parseFloat(obj[9]);
+            grbl_daten.WCO.Y = parseFloat(obj[10]);
+        } else if (obj[8] == "Ov") {
+            grbl_daten.Ov.F = parseInt(obj[9]);
+            grbl_daten.Ov.R = parseInt(obj[10]);
+            grbl_daten.Ov.S = parseInt(obj[11]);
+        }
+    } else if (data.match(/([ALARM]+[:]+[0-9]+)/g)) {
+        //console.log(data.match(/([ALARM]+[:]+[0-9]+)/g));
+        var index = data.match(/([0-9]+)/g);
+        index = parseInt(index);
+        //console.log(index);
+        var alarm = grbl.alarm_codes[index - 1].Alarm_Message;
+        grbl_daten.command = `Alarm: ${alarm}`;
+    } else if (data.match(/([error]+[:]+[0-9]+)/g)) {
+        var index = data.match(/([0-9]+)/g);
+        var error = grbl.error_codes[index[0] - 1].Error_Message;
+        grbl_daten.command = `Error ${index[0]}: ${error}`;
         status = 1;
+    } else if (data.match(/(Grbl)/g)) {
+        //console.log("Grbl 0.9j ['$' for help]"); 
+        grbl_daten.command = data;
+    } else if (data.match(/[o]+[k]/g)) {
+        //console.log("OK");
+        grbl_daten.command = "Ok";
+        status = 1;
+    } else if (data.match(/[[][A-Z]+(.)+[:]/g)) {
+        var arr_data = 0;
+        if (data.match(/\[MSG:/)) {
+            grbl_daten.command = _.replace(data, /\[MSG:/, '[');
+        } else if (data.match(/\[G54:/)) {
+            arr_data = data.split(/[\:,]/g);
+            grbl_data_printout.G54.X = parseFloat(arr_data[1]);
+            grbl_data_printout.G54.Y = parseFloat(arr_data[2]);
+        } else if (data.match(/\[G55:/)) {
+            arr_data = data.split(/[\:,]/g);
+            grbl_data_printout.G55.X = parseFloat(arr_data[1]);
+            grbl_data_printout.G55.Y = parseFloat(arr_data[2]);
+        } else if (data.match(/\[G56:/)) {
+            arr_data = data.split(/[\:,]/g);
+            grbl_data_printout.G56.X = parseFloat(arr_data[1]);
+            grbl_data_printout.G56.Y = parseFloat(arr_data[2]);
+        } else if (data.match(/\[G57:/)) {
+            arr_data = data.split(/[\:,]/g);
+            grbl_data_printout.G57.X = parseFloat(arr_data[1]);
+            grbl_data_printout.G57.Y = parseFloat(arr_data[2]);
+        } else if (data.match(/\[G58:/)) {
+            arr_data = data.split(/[\:,]/g);
+            grbl_data_printout.G58.X = parseFloat(arr_data[1]);
+            grbl_data_printout.G58.Y = parseFloat(arr_data[2]);
+        } else if (data.match(/\[G59:/)) {
+            arr_data = data.split(/[\:,]/g);
+            grbl_data_printout.G59.X = parseFloat(arr_data[1]);
+            grbl_data_printout.G59.Y = parseFloat(arr_data[2]);
+        } else if (data.match(/\[G28:/)) {
+            arr_data = data.split(/[\:,]/g);
+            grbl_data_printout.G28.X = parseFloat(arr_data[1]);
+            grbl_data_printout.G28.Y = parseFloat(arr_data[2]);
+        } else if (data.match(/\[G30:/)) {
+            arr_data = data.split(/[\:,]/g);
+            grbl_data_printout.G30.X = parseFloat(arr_data[1]);
+            grbl_data_printout.G30.Y = parseFloat(arr_data[2]);
+        } else if (data.match(/\[G92:/)) {
+            arr_data = data.split(/[\:,]/g);
+            grbl_data_printout.G92.X = parseFloat(arr_data[1]);
+            grbl_data_printout.G92.Y = parseFloat(arr_data[2]);
+        } else if (data.match(/\[TLO:/)) {
+            arr_data = data.split(/[\:,]/g);
+            grbl_data_printout.TLO = parseFloat(arr_data[1]);
+        } else if (data.match(/\[PRB:/)) {
+            arr_data = data.split(/[\:,]/g);
+            grbl_data_printout.PRB.X = parseFloat(arr_data[1]);
+            grbl_data_printout.PRB.Y = parseFloat(arr_data[2]);
+        }
 
-    } else if ([obj[0]] == "Grbl 0.9j ['$' for help]\r") {
-        //console.log("Grbl 0.9j ['$' for help]");
-        rti.nachricht = "Grbl 0.9j ['$' for help]";
+    } else if (re3.test(data)) {
 
-    } else if ([obj[0]] == "['$H'|'$X' to unlock]\r") {
-        //console.log("['$H'|'$X' to unlock]");
-        rti.nachricht = "['$H'|'$X' to unlock]";
+        if (data.match(/(\$0)\=/g)) {
+            options.$0 = _.replace(data, /[\$]+[0-9]+[\=]/, "");
+        } else if (data.match(/(\$1)\=/g)) {
+            options.$1 = _.replace(data, /[\$]+[0-9]+[\=]/, "");
+        } else if (data.match(/(\$2)\=/g)) {
+            options.$2 = _.replace(data, /[\$]+[0-9]+[\=]/, "");
+        } else if (data.match(/(\$3)\=/g)) {
+            options.$3 = _.replace(data, /[\$]+[0-9]+[\=]/, "");
+        } else if (data.match(/(\$4)\=/g)) {
+            options.$4 = _.replace(data, /[\$]+[0-9]+[\=]/, "");
+        } else if (data.match(/(\$5)\=/g)) {
+            options.$5 = _.replace(data, /[\$]+[0-9]+[\=]/, "");
+        } else if (data.match(/(\$6)\=/g)) {
+            options.$6 = _.replace(data, /[\$]+[0-9]+[\=]/, "");
+        } else if (data.match(/(\$10)\=/g)) {
+            options.$10 = _.replace(data, /[\$]+[0-9]+[\=]/, "");
+        } else if (data.match(/(\$11)\=/g)) {
+            options.$11 = _.replace(data, /[\$]+[0-9]+[\=]/, "");
+        } else if (data.match(/(\$12)\=/g)) {
+            options.$12 = _.replace(data, /[\$]+[0-9]+[\=]/, "");
+        } else if (data.match(/(\$13)\=/g)) {
+            options.$13 = _.replace(data, /[\$]+[0-9]+[\=]/, "");
+        } else if (data.match(/(\$20)\=/g)) {
+            options.$20 = _.replace(data, /[\$]+[0-9]+[\=]/, "");
+        } else if (data.match(/(\$21)\=/g)) {
+            options.$21 = _.replace(data, /[\$]+[0-9]+[\=]/, "");
+        } else if (data.match(/(\$22)\=/g)) {
+            options.$22 = _.replace(data, /[\$]+[0-9]+[\=]/, "");
+        } else if (data.match(/(\$23)\=/g)) {
+            options.$23 = _.replace(data, /[\$]+[0-9]+[\=]/, "");
+        } else if (data.match(/(\$24)\=/g)) {
+            options.$24 = _.replace(data, /[\$]+[0-9]+[\=]/, "");
+        } else if (data.match(/(\$25)\=/g)) {
+            options.$25 = _.replace(data, /[\$]+[0-9]+[\=]/, "");
+        } else if (data.match(/(\$26)\=/g)) {
+            options.$26 = _.replace(data, /[\$]+[0-9]+[\=]/, "");
+        } else if (data.match(/(\$27)\=/g)) {
+            options.$27 = _.replace(data, /[\$]+[0-9]+[\=]/, "");
+        } else if (data.match(/(\$30)\=/g)) {
+            options.$30 = _.replace(data, /[\$]+[0-9]+[\=]/, "");
+        } else if (data.match(/(\$31)\=/g)) {
+            options.$31 = _.replace(data, /[\$]+[0-9]+[\=]/, "");
+        } else if (data.match(/(\$32)\=/g)) {
+            options.$32 = _.replace(data, /[\$]+[0-9]+[\=]/, "");
+        } else if (data.match(/(\$100)\=/g)) {
+            options.$100 = _.replace(data, /[\$]+[0-9]+[\=]/, "");
+        } else if (data.match(/(\$101)\=/g)) {
+            options.$101 = _.replace(data, /[\$]+[0-9]+[\=]/, "");
+        } else if (data.match(/(\$102)\=/g)) {
+            options.$102 = _.replace(data, /[\$]+[0-9]+[\=]/, "");
+        } else if (data.match(/(\$110)\=/g)) {
+            options.$110 = _.replace(data, /[\$]+[0-9]+[\=]/, "");
+        } else if (data.match(/(\$111)\=/g)) {
+            options.$111 = _.replace(data, /[\$]+[0-9]+[\=]/, "");
+        } else if (data.match(/(\$112)\=/g)) {
+            options.$112 = _.replace(data, /[\$]+[0-9]+[\=]/, "");
+        } else if (data.match(/(\$120)\=/g)) {
+            options.$120 = _.replace(data, /[\$]+[0-9]+[\=]/, "");
+        } else if (data.match(/(\$121)\=/g)) {
+            options.$121 = _.replace(data, /[\$]+[0-9]+[\=]/, "");
+        } else if (data.match(/(\$122)\=/g)) {
+            options.$122 = _.replace(data, /[\$]+[0-9]+[\=]/, "");
+        } else if (data.match(/(\$130)\=/g)) {
+            options.$130 = _.replace(data, /[\$]+[0-9]+[\=]/, "");
+        } else if (data.match(/(\$131)\=/g)) {
+            options.$131 = _.replace(data, /[\$]+[0-9]+[\=]/, "");
+        } else if (data.match(/(\$132)\=/g)) {
+            options.$132 = _.replace(data, /[\$]+[0-9]+[\=]/, "");
+        }
+        var settings = {
+            options: options,
+            setting_codes: grbl.settings_codes,
+            grbl_data_printout: grbl_data_printout
+        };
 
-
-    } else if (opt.test(obj[0])) {
-        //console.log("['$H'|'$X' to unlock]");
-        rti.nachricht = obj[0];
-
-    } else {
-
-        rti.status = obj[0];
-        rti.MXPos = parseFloat(obj[2]);
-        rti.MYPos = parseFloat(obj[3]);
-        rti.WXPos = parseFloat(obj[6]);
-        rti.WYPos = parseFloat(obj[7]);
-
+        var _settings = JSON.stringify(settings);
+        process.send({ settings: _settings });
+        if (debug === true) console.log("\x1b[40m\x1b[31m", 'Parser out =' + _settings);
     }
-    //console.log(rti);
+
+    var _grbl_daten = JSON.stringify(grbl_daten);
+    process.send({ grbl_daten: _grbl_daten });
+    if (debug === true) console.log("\x1b[40m\x1b[31m", 'Parser out =' + _grbl_daten);
+
 }
+
+
 
 //Ende read()########################################################################################################
 
 function showPortClose() {
     console.log('port closed.');
+
 }
 
 function showError(error) {
@@ -176,89 +400,67 @@ function sendZero() {
 }
 
 
-function sending(code, x) {
+var y = 0;
+var code = '';
 
-    x = x;
-    this.code = code;
-    var codeLength = code.length;
+function sending(gcode, x) {
+    if (gcode !== null && x !== null) {
+        x = x;
+        code = gcode;
+        var codeLength = code.length;
 
-    handle = setInterval(function() {
-        handleState = 1;
-        while (status == 1 && x < codeLength) {
-            myPort.write(code[x] + "\n");
-            console.log("Serial out >> " + code[x]);
-            console.log(x);
-            x++;
-            y = x;
-            status = 0;
-            var percentage = (100 / codeLength) * (x);
-            console.log(percentage + "%");
-            module.exports.percentage = percentage;
-            if (x == codeLength) {
+        handle = setInterval(function() {
+            handleState = 1;
+            if (status == 1 && x < codeLength) {
+                myPort.write(code[x] + "\n");
+                grbl_daten.command = "Serial out >> " + code[x];
+                x++;
+                y = x;
+                status = 0;
+                var percentage = (100 / codeLength) * (x);
+
+                process.send({ percentage: percentage });
+                process.send({ job: 'run' });
+
+            } else if (status == 1 && x == codeLength) {
 
                 myPort.write(code[codeLength] + "\n");
 
-                console.log("Serial out >> " + code[x]);
                 console.log("Done");
-                percentage = 0;
+                clearInterval(handle);
+                var percentage = 0;
                 handleState = 0;
-                //clearInterval(handle);
-                module.exports.percentage = percentage;
+                process.send({ percentage: percentage });
+                process.send({ job: 'done' });
+                clearInterval(handle);
 
             }
-        }
-    }, 1);
+
+        }, 0);
+    } else { return 0; }
 }
 
-
 function pause() {
-
-    handleState == 1 ? clearInterval(handle) : {}; // Abfrage ob der Interval zum Senden gesetzt wurde
-
-
+    handleState == 1 ? clearInterval(handle) : noop(); // Abfrage ob der Interval zum Senden gesetzt wurde
 }
 
 function resume() {
+    handleState == 1 ? sending(code, y) : noop(); // Abfrage ob der Interval zum Senden gesetzt wurde
+}
 
-    handleState == 1 ? sending(code, y) : {}; // Abfrage ob der Interval zum Senden gesetzt wurde
-
+function stop() {
+    handleState == 1 ? clearInterval(handle) : noop(); // Abfrage ob der Interval zum Senden gesetzt wurde
 }
 
 
 
-function callCode(gcode) {
-    var code = gcode;
+function callCode(code, x) {
     if (code !== undefined && code !== null) {
 
         var codeLength = code.length;
-        var x = 0;
         status = 1;
-        console.log(x);
         console.log("Job started");
-
-        if (x <= codeLength) {
-
-            sending(code, x);
-
-        }
+        sending(code, x);
 
     }
 }
-
-
-
-
-//Funktionen exportieren
-
-
-exports.text = sendText;
-exports.Code = callCode;
-exports.Open = Open;
-exports.Close = Close;
-exports.myPort = myPort;
-exports.list = SerialPort.list;
-exports.resume = resume;
-exports.pause = pause;
-
-
-//

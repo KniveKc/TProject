@@ -1,0 +1,181 @@
+[{
+        "Error_Code": 1,
+        "Error_Message": "Expected command letter",
+        "Error_Description": "G-code words consist of a letter and a value. Letter was not found."
+    },
+    {
+        "Error_Code": 2,
+        "Error_Message": "Bad number format",
+        "Error_Description": "Missing the expected G-code word value or numeric value format is not valid."
+    },
+    {
+        "Error_Code": 3,
+        "Error_Message": "Invalid statement",
+        "Error_Description": "Grbl '$' system command was not recognized or supported."
+    },
+    {
+        "Error_Code": 4,
+        "Error_Message": "Value < 0",
+        "Error_Description": "Negative value received for an expected positive value."
+    },
+    {
+        "Error_Code": 5,
+        "Error_Message": "Setting disabled",
+        "Error_Description": "Homing cycle failure. Homing is not enabled via settings."
+    },
+    {
+        "Error_Code": 6,
+        "Error_Message": "Value < 3 usec",
+        "Error_Description": "Minimum step pulse time must be greater than 3usec."
+    },
+    {
+        "Error_Code": 7,
+        "Error_Message": "EEPROM read fail. Using defaults",
+        "Error_Description": "An EEPROM read failed. Auto-restoring affected EEPROM to default values."
+    },
+    {
+        "Error_Code": 8,
+        "Error_Message": "Not idle",
+        "Error_Description": "Grbl '$' command cannot be used unless Grbl is IDLE. Ensures smooth operation during a job."
+    },
+    {
+        "Error_Code": 9,
+        "Error_Message": "G-code lock",
+        "Error_Description": "G-code commands are locked out during alarm or jog state."
+    },
+    {
+        "Error_Code": 10,
+        "Error_Message": "Homing not enabled",
+        "Error_Description": "Soft limits cannot be enabled without homing also enabled."
+    },
+    {
+        "Error_Code": 11,
+        "Error_Message": "Line overflow",
+        "Error_Description": "Max characters per line exceeded. Received command line was not executed."
+    },
+    {
+        "Error_Code": 12,
+        "Error_Message": "Step rate > 30kHz",
+        "Error_Description": "Grbl '$' setting value cause the step rate to exceed the maximum supported."
+    },
+    {
+        "Error_Code": 13,
+        "Error_Message": "Check Door",
+        "Error_Description": "Safety door detected as opened and door state initiated."
+    },
+    {
+        "Error_Code": 14,
+        "Error_Message": "Line length exceeded",
+        "Error_Description": "Build info or startup line exceeded EEPROM line length limit. Line not stored."
+    },
+    {
+        "Error_Code": 15,
+        "Error_Message": "Travel exceeded",
+        "Error_Description": "Jog target exceeds machine travel. Jog command has been ignored."
+    },
+    {
+        "Error_Code": 16,
+        "Error_Message": "Invalid jog command",
+        "Error_Description": "Jog command has no '=' or contains prohibited g-code."
+    },
+    {
+        "Error_Code": 17,
+        "Error_Message": "Setting disabled",
+        "Error_Description": "Laser mode requires PWM output."
+    },
+    {
+        "Error_Code": 20,
+        "Error_Message": "Unsupported command",
+        "Error_Description": "Unsupported or invalid g-code command found in block."
+    },
+    {
+        "Error_Code": 21,
+        "Error_Message": "Modal group violation",
+        "Error_Description": "More than one g-code command from same modal group found in block."
+    },
+    {
+        "Error_Code": 22,
+        "Error_Message": "Undefined feed rate",
+        "Error_Description": "Feed rate has not yet been set or is undefined."
+    },
+    {
+        "Error_Code": 23,
+        "Error_Message": "Invalid gcode ID:23",
+        "Error_Description": "G-code command in block requires an integer value."
+    },
+    {
+        "Error_Code": 24,
+        "Error_Message": "Invalid gcode ID:24",
+        "Error_Description": "More than one g-code command that requires axis words found in block."
+    },
+    {
+        "Error_Code": 25,
+        "Error_Message": "Invalid gcode ID:25",
+        "Error_Description": "Repeated g-code word found in block."
+    },
+    {
+        "Error_Code": 26,
+        "Error_Message": "Invalid gcode ID:26",
+        "Error_Description": "No axis words found in block for g-code command or current modal state which requires them."
+    },
+    {
+        "Error_Code": 27,
+        "Error_Message": "Invalid gcode ID:27",
+        "Error_Description": "Line number value is invalid."
+    },
+    {
+        "Error_Code": 28,
+        "Error_Message": "Invalid gcode ID:28",
+        "Error_Description": "G-code command is missing a required value word."
+    },
+    {
+        "Error_Code": 29,
+        "Error_Message": "Invalid gcode ID:29",
+        "Error_Description": "G59.x work coordinate systems are not supported."
+    },
+    {
+        "Error_Code": 30,
+        "Error_Message": "Invalid gcode ID:30",
+        "Error_Description": "G53 only allowed with G0 and G1 motion modes."
+    },
+    {
+        "Error_Code": 31,
+        "Error_Message": "Invalid gcode ID:31",
+        "Error_Description": "Axis words found in block when no command or current modal state uses them."
+    },
+    {
+        "Error_Code": 32,
+        "Error_Message": "Invalid gcode ID:32",
+        "Error_Description": "G2 and G3 arcs require at least one in-plane axis word."
+    },
+    {
+        "Error_Code": 33,
+        "Error_Message": "Invalid gcode ID:33",
+        "Error_Description": "Motion command target is invalid."
+    },
+    {
+        "Error_Code": 34,
+        "Error_Message": "Invalid gcode ID:34",
+        "Error_Description": "Arc radius value is invalid."
+    },
+    {
+        "Error_Code": 35,
+        "Error_Message": "Invalid gcode ID:35",
+        "Error_Description": "G2 and G3 arcs require at least one in-plane offset word."
+    },
+    {
+        "Error_Code": 36,
+        "Error_Message": "Invalid gcode ID:36",
+        "Error_Description": "Unused value words found in block."
+    },
+    {
+        "Error_Code": 37,
+        "Error_Message": "Invalid gcode ID:37",
+        "Error_Description": "G43.1 dynamic tool length offset is not assigned to configured tool length axis."
+    },
+    {
+        "Error_Code": 38,
+        "Error_Message": "Invalid gcode ID:38",
+        "Error_Description": "Tool number greater than max supported value."
+    }
+]

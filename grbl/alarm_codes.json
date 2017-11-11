@@ -1,0 +1,46 @@
+[{
+        "Alarm_Code": 1,
+        "Alarm_Message": "Hard limit",
+        "Alarm_Description": "Hard limit has been triggered. Machine position is likely lost due to sudden halt. Re-homing is highly recommended."
+    },
+    {
+        "Alarm_Code": 2,
+        "Alarm_Message": "Soft limit",
+        "Alarm_Description": "Soft limit alarm. G-code motion target exceeds machine travel. Machine position retained. Alarm may be safely unlocked."
+    },
+    {
+        "Alarm_Code": 3,
+        "Alarm_Message": "Abort during cycle",
+        "Alarm_Description": "Reset while in motion. Machine position is likely lost due to sudden halt. Re-homing is highly recommended."
+    },
+    {
+        "Alarm_Code": 4,
+        "Alarm_Message": "Probe fail",
+        "Alarm_Description": "Probe fail. Probe is not in the expected initial state before starting probe cycle when G38.2 and G38.3 is not triggered and G38.4 and G38.5 is triggered."
+    },
+    {
+        "Alarm_Code": 5,
+        "Alarm_Message": "Probe fail",
+        "Alarm_Description": "Probe fail. Probe did not contact the workpiece within the programmed travel for G38.2 and G38.4."
+    },
+    {
+        "Alarm_Code": 6,
+        "Alarm_Message": "Homing fail",
+        "Alarm_Description": "Homing fail. The active homing cycle was reset."
+    },
+    {
+        "Alarm_Code": 7,
+        "Alarm_Message": "Homing fail",
+        "Alarm_Description": "Homing fail. Safety door was opened during homing cycle."
+    },
+    {
+        "Alarm_Code": 8,
+        "Alarm_Message": "Homing fail",
+        "Alarm_Description": "Homing fail. Pull off travel failed to clear limit switch. Try increasing pull-off setting or check wiring."
+    },
+    {
+        "Alarm_Code": 9,
+        "Alarm_Message": "Homing fail",
+        "Alarm_Description": "Homing fail. Could not find limit switch within search distances. Try increasing max travel, decreasing pull-off distance, or check wiring."
+    }
+]

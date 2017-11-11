@@ -1,0 +1,101 @@
+[{
+        "OPT: Code": "V",
+        "Build-Option Description": "Variable spindle",
+        "State": "Enabled"
+    },
+    {
+        "OPT: Code": "N",
+        "Build-Option Description": "Line numbers",
+        "State": "Enabled"
+    },
+    {
+        "OPT: Code": "M",
+        "Build-Option Description": "Mist coolant M7",
+        "State": "Enabled"
+    },
+    {
+        "OPT: Code": "C",
+        "Build-Option Description": "CoreXY",
+        "State": "Enabled"
+    },
+    {
+        "OPT: Code": "P",
+        "Build-Option Description": "Parking motion",
+        "State": "Enabled"
+    },
+    {
+        "OPT: Code": "Z",
+        "Build-Option Description": "Homing force origin",
+        "State": "Enabled"
+    },
+    {
+        "OPT: Code": "H",
+        "Build-Option Description": "Homing single axis commands",
+        "State": "Enabled"
+    },
+    {
+        "OPT: Code": "T",
+        "Build-Option Description": "Two limit switches on axis",
+        "State": "Enabled"
+    },
+    {
+        "OPT: Code": "A",
+        "Build-Option Description": "Allow feed rate overrides in probe cycles",
+        "State": "Enabled"
+    },
+    {
+        "OPT: Code": "D",
+        "Build-Option Description": "Use spindle direction as enable pin",
+        "State": "Enabled"
+    },
+    {
+        "OPT: Code": "0",
+        "Build-Option Description": "Spindle enable off when speed is zero",
+        "State": "Enabled"
+    },
+    {
+        "OPT: Code": "S",
+        "Build-Option Description": "Software limit pin debouncing",
+        "State": "Enabled"
+    },
+    {
+        "OPT: Code": "R",
+        "Build-Option Description": "Parking override control",
+        "State": "Enabled"
+    },
+    {
+        "OPT: Code": "*",
+        "Build-Option Description": "Restore all EEPROM command",
+        "State": "Disabled"
+    },
+    {
+        "OPT: Code": "$",
+        "Build-Option Description": "Restore EEPROM `$` settings command",
+        "State": "Disabled"
+    },
+    {
+        "OPT: Code": "#",
+        "Build-Option Description": "Restore EEPROM parameter data command",
+        "State": "Disabled"
+    },
+    {
+        "OPT: Code": "I",
+        "Build-Option Description": "Build info write user string command",
+        "State": "Disabled"
+    },
+    {
+        "OPT: Code": "E",
+        "Build-Option Description": "Force sync upon EEPROM write",
+        "State": "Disabled"
+    },
+    {
+        "OPT: Code": "W",
+        "Build-Option Description": "Force sync upon work coordinate offset change",
+        "State": "Disabled"
+    },
+    {
+        "OPT: Code": "L",
+        "Build-Option Description": "Homing initialization auto-lock",
+        "State": "Disabled"
+    }
+]
