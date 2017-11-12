@@ -425,16 +425,15 @@ function sending(gcode, x) {
                 process.send({ job: 'run' });
 
             } else if (status == 1 && x == codeLength) {
-
-                myPort.write(code[codeLength] + "\n");
-
-                console.log("Done");
                 clearInterval(handle);
+                myPort.write(code[codeLength] + "\n");
+                console.log("Done");
                 var percentage = 0;
                 handleState = 0;
                 process.send({ percentage: percentage });
                 process.send({ job: 'done' });
-                clearInterval(handle);
+                process.send({ job: '' });
+
 
             }
 
@@ -461,6 +460,7 @@ function callCode(code, x) {
 
         var codeLength = code.length;
         status = 1;
+        process.send({ job: 'started' });
         console.log("Job started");
         sending(code, x);
 

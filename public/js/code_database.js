@@ -87,8 +87,8 @@ $(document).ready(function() {
     $(function() {
 
         $table.on('click-row.bs.table', function(e, row, $element) {
-            $('.success').removeClass('success');
-            $($element).addClass('success');
+            $('.bg-warning').removeClass('bg-warning');
+            $($element).addClass('bg-warning');
             $('#button').click();
             console.log(`Selected Id: ${getSelectedRow().code_id} Name: ${getSelectedRow().code_name}`);
             var dat = {
@@ -102,13 +102,18 @@ $(document).ready(function() {
     });
 
     function getSelectedRow() {
-        var index = $table.find('tr.success').data('index');
+        var index = $table.find('tr.bg-warning').data('index');
         return $table.bootstrapTable('getData')[index];
     }
 
     $('#delete_button').click(function() {
         socket.emit('delete_code');
         location.reload();
+    });
+
+    $('#select_button').click(function() {
+        socket.emit('plot_code');
+
     });
 
 });

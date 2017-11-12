@@ -33,8 +33,8 @@ $(document).ready(function() {
     $(function() {
 
         $table_user.on('click-row.bs.table', function(e, row, $element) {
-            $('.success').removeClass('success');
-            $($element).addClass('success');
+            $('.bg-warning').removeClass('bg-warning');
+            $($element).addClass('bg-warning');
 
             console.log('Selected ID: ' + getSelectedRow().id + ' Selected name: ' + getSelectedRow().name);
             var dat = {
@@ -51,7 +51,7 @@ $(document).ready(function() {
     });
 
     function getSelectedRow() {
-        var index = $table_user.find('tr.success').data('index');
+        var index = $table_user.find('tr.bg-warning').data('index');
         return $table_user.bootstrapTable('getData')[index];
     }
 
@@ -59,8 +59,8 @@ $(document).ready(function() {
 
     $(function() {
         $table_pending.on('click-row.bs.table', function(e, row, $element) {
-            $('.success').removeClass('success');
-            $($element).addClass('success');
+            $('.bg-warning').removeClass('bg-warning');
+            $($element).addClass('bg-warning');
 
             console.log('Selected ID: ' + getSelectedRow2().id + ' Selected name: ' + getSelectedRow2().name);
             var dat2 = {
@@ -77,7 +77,7 @@ $(document).ready(function() {
     });
 
     function getSelectedRow2() {
-        var index = $table_pending.find('tr.success').data('index');
+        var index = $table_pending.find('tr.bg-warning').data('index');
         return $table_pending.bootstrapTable('getData')[index];
     }
 

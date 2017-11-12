@@ -18,11 +18,11 @@ const database = require("./db/dbcon.js");
 var dev_mode = false;
 
 // Pi GPIO
-var //////rpio = require('//////rpio');
-//////rpio.open(18, //////rpio.OUTPUT, //////rpio.HIGH);
+//var rpio = require('rpio');
+//rpio.open(18, rpio.OUTPUT, rpio.HIGH);
 
 
-    database.connect(function(err) {
+database.connect(function(err) {
     if (err) throw err;
 
     console.log('\x1b[33m%s\x1b[0m', "MySql Database connected" + "\n");
@@ -338,7 +338,6 @@ var //////rpio = require('//////rpio');
 
         }
 
-
         //###################
 
         var del_user = {};
@@ -359,6 +358,19 @@ var //////rpio = require('//////rpio');
         socket.on('select_code', function(data) {
             del_code = data;
             console.log(data);
+
+        });
+
+        socket.on('plot_code', function() {
+
+            fs.readFile(__dirname + `/uploads/${del_code.name}`)
+                .then((data) => {
+                    gcode = data.toString().split('\n');
+                    console.log(gcode);
+                })
+                .catch((err) => console.error(err));
+
+
 
         });
 
@@ -474,7 +486,7 @@ var //////rpio = require('//////rpio');
             serial_con.send({ text: command.command });
             socket.emit("newCommand", command);
             socket.broadcast.emit("newCommand", command);
-            //////rpio.write(18, //////rpio.LOW);
+            //.write(18, //rpio.LOW);
         });
 
         socket.on("command", function(command) {
@@ -489,12 +501,12 @@ var //////rpio = require('//////rpio');
             serial_con.send({ text: command.command });
             socket.emit("newCommand", command);
             socket.broadcast.emit("newCommand", command);
-            ////rpio.write(18, ////rpio.HIGH);
+            //rpio.write(18, //rpio.HIGH);
         });
 
         socket.on("sendeCode", function() {
             serial_con.send({ text: '~' });
-            ////rpio.write(18, ////rpio.LOW);
+            //rpio.write(18, //rpio.LOW);
             serial_con.send({ code: gcode, x: 0 });
 
         });
@@ -716,15 +728,22 @@ var //////rpio = require('//////rpio');
                 }
 
                 var JobState = 0;
-                if (msg.job == 'run') {
+                if (msg.job == 'started') {
+                    //serial_con.send({ text: '!' });
+                    //rpio.write(18, //rpio.LOW);
+                    JobState = 1;
+                    console.time('label')
+                        //console.log(JobState);
+                } else if (msg.job == 'run') {
                     JobState = 1;
                     //console.log(JobState);
                 } else if (msg.job == 'done') {
                     serial_con.send({ cmd: 'pause' });
                     //serial_con.send({ text: '!' });
-                    ////rpio.write(18, ////rpio.HIGH);
+                    //rpio.write(18, //rpio.HIGH);
                     JobState = 0;
                     //console.log(JobState);
+                    console.timeEnd('label');
                 }
             }
         });
@@ -791,15 +810,15 @@ var //////rpio = require('//////rpio');
         socket.on('pauseCode', function() {
             serial_con.send({ cmd: 'pause' });
             serial_con.send({ text: '!' });
-            ////rpio.write(18, ////rpio.HIGH);
+            //rpio.write(18, //rpio.HIGH);
         });
 
         socket.on('resumeCode', function() {
 
             serial_con.send({ text: '~' });
             serial_con.send({ cmd: 'resume' });
-            ////rpio.write(18, ////rpio.LOW);
-            //////rpio.msleep(100); // Vielleicht benötigt ?
+            //rpio.write(18, //rpio.LOW);
+            ////rpio.msleep(100); // Vielleicht benötigt ?
         });
 
 
@@ -807,8 +826,8 @@ var //////rpio = require('//////rpio');
             console.log('Operation stopped by user!');
             serial_con.send({ cmd: 'stop' });
             serial_con.send({ text: '!' });
-            ////rpio.write(18, ////rpio.HIGH);
-            //////rpio.msleep(100); // Vielleicht benötigt ?
+            //rpio.write(18, //rpio.HIGH);
+            ////rpio.msleep(100); // Vielleicht benötigt ?
         });
 
     });
