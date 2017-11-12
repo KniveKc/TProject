@@ -1,7 +1,7 @@
 const { fork } = require('child_process');
 const serial_con = fork("./Scripts/serial.js");
 const path = require('path');
-const fs = require('fs');
+const fs = require('fs-extra');
 const express = require("express");
 const passport = require('passport');
 const Strategy = require('passport-local').Strategy;
@@ -15,13 +15,16 @@ const favicon = require('serve-favicon');
 const db = require('./db');
 const database = require("./db/dbcon.js");
 
+var dev_mode = false;
+
 // Pi GPIO
-//var //rpio = require('//rpio');
-////rpio.open(18, //rpio.OUTPUT, //rpio.HIGH);
+var //////rpio = require('//////rpio');
+//////rpio.open(18, //////rpio.OUTPUT, //////rpio.HIGH);
 
 
-database.connect(function(err) {
+    database.connect(function(err) {
     if (err) throw err;
+
     console.log('\x1b[33m%s\x1b[0m', "MySql Database connected" + "\n");
 
     var gcode = null;
@@ -42,7 +45,10 @@ database.connect(function(err) {
     app.use(passport.initialize());
     app.use(passport.session());
 
-    (process.argv[2] == 'dev') ? app.use(morgan('dev')): {};
+    if (process.argv[2] == 'dev') {
+        app.use(morgan('dev'));
+        dev_mode = true;
+    }
 
     // Passport local strategy
 
@@ -66,8 +72,10 @@ database.connect(function(err) {
             cb(null, user);
         });
     });
-    //################################################
 
+    //#################### Routing ####################
+
+    var current_user = '';
 
     app.get('/',
         function(req, res) {
@@ -101,12 +109,12 @@ database.connect(function(err) {
             //res.sendFile(path.join(__dirname, 'views/gtools.html'));
             var port = '/dev/ttyUSB0';
             serial_con.send({ start: port });
+            current_user = req.user;
         });
 
     app.get('/admin',
         require('connect-ensure-login').ensureLoggedIn(),
         function(req, res) {
-            console.log(req.user.username);
             if (req.user.username == 'admin') {
 
                 res.render('admin', { user: req.user });
@@ -134,6 +142,11 @@ database.connect(function(err) {
         function(req, res) {
 
             res.render('test', { user: req.user });
+        });
+    app.get('/code_db',
+        function(req, res) {
+
+            res.render('code_db', { user: req.user });
         });
     app.post('/upload', function(req, res) {
 
@@ -241,11 +254,25 @@ database.connect(function(err) {
 
         });
 
+        database.query("select * from gcodes", function(err, result) {
+            if (err) console.error(err);
+
+            var t_codes = {};
+
+            result.forEach(function(result) {
+                t_codes.code_id = result.code_id;
+                t_codes.code_name = result.code_name;
+                t_codes.code_location = result.code_location;
+                socket.emit("t_codes", t_codes);
+            });
+
+        });
 
 
         app.post('/new', function(req, res) {
-            var sql2 = `INSERT INTO pending (Name, Lastname, Username, Password) VALUES ( "${req.body.username}" , "${req.body.user.Lastname}" , "${req.body.user.Username}", "${req.body.user.Passwod}")`;
+            var sql2 = `INSERT INTO pending (Name, Lastname, Username, Password) VALUES ( "${req.body.user.Name}" , "${req.body.user.Lastname}" , "${req.body.user.Username}", "${req.body.user.Password}")`;
             //var sql = "INSERT INTO pending (Name, Lastname, Username, Password) VALUES (" + "'" + req.body.user.Name + "'" + ", " + "'" + req.body.user.Lastname + "'" + ",  " + "'" + req.body.user.Username + "'" + ", " + "'" + req.body.user.Password + "'" + ")";
+
             database.query(sql2, function(err, result) {
                 if (err) {
                     console.log("\x1b[31m\x1b[1m", "Query fehlgeschlagen!");
@@ -271,35 +298,23 @@ database.connect(function(err) {
             res.redirect("/admin");
         });
 
+
+
         socket.on("fileinput", function(data) {
 
-            console.log(data);
-
-            const gcode = Buffer.from(data.file, 'binary');
-            console.log(gcode.length);
-            var sql = 'INSERT INTO gcodes SET ?',
-                values = {
-                    code_name: data.name,
-                    code_data: gcode
-                };
-            database.query(sql, values, function(err, result) {
-                if (err) {
-                    console.log("Query fehlgeschlagen!");
-                    console.log(err);
-                    return err;
-                }
-                console.log("\x1b[36m\x1b[1m", "1 record inserted into GCODES");
-            });
+            gcode = data.split("\n");
+            socket.broadcast.emit("fileinputs", data);
+            console.log(gcode);
 
 
 
         });
-
 
 
         socket.on('get', () => {
             read_from_table("'chevron_0001.txt'");
         });
+
 
         function read_from_table(code_name) {
             var sql = `select * from gcodes where code_name = ${code_name}`;
@@ -328,20 +343,61 @@ database.connect(function(err) {
 
         var del_user = {};
         var del_pending = {};
+        var del_code = {};
 
-        socket.on('testdb', function(data) {
+        socket.on('select_db', function(data) {
             del_user = data;
+            //console.log(del_user);
 
         });
 
-        socket.on('testdb2', function(data) {
+        socket.on('select_db2', function(data) {
             del_pending = data;
 
         });
 
-        socket.on('deleteuser', function() {
+        socket.on('select_code', function(data) {
+            del_code = data;
+            console.log(data);
 
-            database.query("delete from user where id = '" + del_user.id + "' and displayName = '" + del_user.name + "'", function(err, result) {
+        });
+
+        socket.on('change_pwd', (values) => {
+            if (del_user !== {}) {
+                if (values.New_password !== "") {
+                    var sql = (`SELECT * FROM user WHERE id = ${del_user.id}`);
+                    database.query(sql, (err, result) => {
+                        if (err) {
+                            console.error(err);
+                            return err;
+                        }
+                        console.log(result[0].password);
+                        if (values.Password1 === values.Password2) {
+                            console.log('success');
+                            var sql = (`UPDATE user SET password = '${values.New_password}' WHERE id = ${del_user.id}`);
+                            database.query(sql, (err) => {
+                                if (err) {
+                                    console.error(err);
+                                    return err;
+                                }
+                                socket.emit('PWD', 'Password changed');
+                            });
+                        } else {
+                            socket.emit('PWD', 'Wrong Password');
+                        }
+                    });
+
+
+                } else {
+                    socket.emit('PWD', 'Password cannot be empty');
+
+                }
+            }
+        });
+
+        socket.on('deleteuser', () => {
+            var sql = (`delete from user where id = "${del_user.id}"' and displayName = "${del_user.name}"`)
+            database.query(sql, function(err, result) {
                 if (err) {
                     console.log("\x1b[31m\x1b[4m", "Query fehlgeschlagen!");
                     return err;
@@ -352,7 +408,7 @@ database.connect(function(err) {
 
         });
 
-        socket.on('deletepending', function() {
+        socket.on('deletepending', () => {
 
             database.query("delete from pending where idpending = '" + del_pending.id + "' and name = '" + del_pending.name + "'", function(err, result) {
                 if (err) {
@@ -360,6 +416,24 @@ database.connect(function(err) {
                     return err;
                 }
                 console.log("\x1b[36m\x1b[1m", "1 record removed");
+
+            });
+
+        });
+
+        socket.on('delete_code', () => {
+
+            console.log(del_code);
+            database.query(`DELETE FROM gcodes WHERE code_id = '${del_code.id}'`, function(err, result) {
+                if (err) {
+                    console.log("\x1b[31m\x1b[1m", "Query fehlgeschlagen!");
+                    return err;
+                }
+                console.log("\x1b[36m\x1b[1m", "1 record removed");
+                fs.unlink(__dirname + `/uploads/${del_code.name}`)
+                    .then(() => console.log('1 FILE REMOVED'))
+                    .catch((err) => console.error(err));
+
 
             });
 
@@ -400,7 +474,7 @@ database.connect(function(err) {
             serial_con.send({ text: command.command });
             socket.emit("newCommand", command);
             socket.broadcast.emit("newCommand", command);
-            //rpio.write(18, //rpio.LOW);
+            //////rpio.write(18, //////rpio.LOW);
         });
 
         socket.on("command", function(command) {
@@ -415,12 +489,12 @@ database.connect(function(err) {
             serial_con.send({ text: command.command });
             socket.emit("newCommand", command);
             socket.broadcast.emit("newCommand", command);
-            //rpio.write(18, //rpio.HIGH);
+            ////rpio.write(18, ////rpio.HIGH);
         });
 
         socket.on("sendeCode", function() {
             serial_con.send({ text: '~' });
-            //rpio.write(18, //rpio.LOW);
+            ////rpio.write(18, ////rpio.LOW);
             serial_con.send({ code: gcode, x: 0 });
 
         });
@@ -648,7 +722,7 @@ database.connect(function(err) {
                 } else if (msg.job == 'done') {
                     serial_con.send({ cmd: 'pause' });
                     //serial_con.send({ text: '!' });
-                    //rpio.write(18, //rpio.HIGH);
+                    ////rpio.write(18, ////rpio.HIGH);
                     JobState = 0;
                     //console.log(JobState);
                 }
@@ -717,15 +791,15 @@ database.connect(function(err) {
         socket.on('pauseCode', function() {
             serial_con.send({ cmd: 'pause' });
             serial_con.send({ text: '!' });
-            //rpio.write(18, //rpio.HIGH);
+            ////rpio.write(18, ////rpio.HIGH);
         });
 
         socket.on('resumeCode', function() {
 
             serial_con.send({ text: '~' });
             serial_con.send({ cmd: 'resume' });
-            //rpio.write(18, //rpio.LOW);
-            ////rpio.msleep(100); // Vielleicht benötigt ?
+            ////rpio.write(18, ////rpio.LOW);
+            //////rpio.msleep(100); // Vielleicht benötigt ?
         });
 
 
@@ -733,8 +807,8 @@ database.connect(function(err) {
             console.log('Operation stopped by user!');
             serial_con.send({ cmd: 'stop' });
             serial_con.send({ text: '!' });
-            //rpio.write(18, //rpio.HIGH);
-            ////rpio.msleep(100); // Vielleicht benötigt ?
+            ////rpio.write(18, ////rpio.HIGH);
+            //////rpio.msleep(100); // Vielleicht benötigt ?
         });
 
     });

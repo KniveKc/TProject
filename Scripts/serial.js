@@ -184,6 +184,8 @@ function read(data) {
         var _data = _.replace(data, re1, '');
         var obj = _.split(_data, re2);
 
+        if (debug === true) console.log("\x1b[32m\x1b[40m", obj);
+
         grbl_daten.status = obj[0];
         grbl_daten.FS.F = parseFloat(obj[6]);
         grbl_daten.FS.S = parseFloat(obj[7]);
@@ -352,12 +354,12 @@ function read(data) {
 
         var _settings = JSON.stringify(settings);
         process.send({ settings: _settings });
-        if (debug === true) console.log("\x1b[40m\x1b[31m", 'Parser out =' + _settings);
+        //if (debug === true) console.log("\x1b[40m\x1b[31m", 'Parser out =' + _settings);
     }
 
     var _grbl_daten = JSON.stringify(grbl_daten);
     process.send({ grbl_daten: _grbl_daten });
-    if (debug === true) console.log("\x1b[40m\x1b[31m", 'Parser out =' + _grbl_daten);
+    //if (debug === true) console.log("\x1b[40m\x1b[31m", 'Parser out =' + _grbl_daten);
 
 }
 

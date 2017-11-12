@@ -17,6 +17,7 @@
         "express": "^4.15.2",
         "express-session": "^1.15.3",
         "formidable": "^1.1.1",
+        "fs-extra": "^4.0.2",
         "local": "^0.3.3",
         "lodash": "^4.17.4",
         "morgan": "^1.8.2",
@@ -30,6 +31,7 @@
         "rpio": "^0.9.17",
         "serialport": "^4.0.7",
         "serve-favicon": "^2.4.3",
+        "socket.io": "^2.0.4",
         "socketio": "^1.0.0"
     }
 }

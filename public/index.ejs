@@ -42,41 +42,7 @@
         <script src="https://cdn.socket.io/socket.io-1.4.3.js"></script>
 
         <!-- Scipt für diese Seite -->
-        <script>
-            var socket = io.connect();
 
-
-            socket.emit("welcomeServer", {
-                name: "David"
-            });
-
-            function switchDialogs() {
-                $("#myModal").toggle();
-                $('#newModal').toggle();
-            }
-
-
-            $(document).ready(function() {
-
-                socket.on("percentage", function(percentage) {
-                    console.log(percentage);
-                    $('.progress-bar').text(parseInt(percentage) + '%');
-                    $('.progress-bar').width(percentage + '%');
-                });
-
-
-
-                $("#signUpAbort").click(function() {
-                    switchDialogs();
-                });
-                $("#signUpButton").click(function() {
-                    switchDialogs();
-                });
-
-
-
-            });
-        </script>
 
         <!-- Script ende -->
 
@@ -171,7 +137,7 @@
             
             .modal {
                 top: 250;
-                background color: #fcfdff;
+                background-color: #fcfdff;
             }
             
             .logo-container p {
@@ -242,13 +208,13 @@
                                 <div class="input-group form-group-no-border input-lg">
                                     <span class="input-group-addon">
                                 <i class="now-ui-icons users_circle-08"></i>
-                            </span>
+                                </span>
                                     <input type="text" name="username" required="required" class="form-control" placeholder="Username">
                                 </div>
                                 <div class="input-group form-group-no-border input-lg">
                                     <span class="input-group-addon">
                                 <i class="fa fa-lock"></i>
-                            </span>
+                                </span>
                                     <input type="password" name="password" required="required" class="form-control" placeholder="*********" />
                                 </div>
                             </div>
@@ -283,26 +249,26 @@
                                     <div class="content">
                                         <div class="input-group form-group-no-border input-lg">
                                             <span class="input-group-addon">
-                                <i class="fa fa-address-card-o"></i>
-                            </span>
+                                    <i class="fa fa-address-card-o"></i>
+                                    </span>
                                             <input type="text" required="required" name="user[Name]" class="form-control" placeholder="Name">
                                         </div>
                                         <div class="input-group form-group-no-border input-lg">
                                             <span class="input-group-addon">
-                                <i class="fa fa-address-card-o"></i>
-                            </span>
+                                    <i class="fa fa-address-card-o"></i>
+                                    </span>
                                             <input type="text" required="required" name="user[Lastname]" class="form-control" placeholder="Lastname">
                                         </div>
                                         <div class="input-group form-group-no-border input-lg">
                                             <span class="input-group-addon">
-                                <i class="now-ui-icons users_circle-08"></i>
-                            </span>
+                                    <i class="now-ui-icons users_circle-08"></i>
+                                    </span>
                                             <input type="text" required="required" name="user[Username]" class="form-control" placeholder="Username">
                                         </div>
                                         <div class="input-group form-group-no-border input-lg">
                                             <span class="input-group-addon">
-                                <i class="fa fa-lock"></i>
-                            </span>
+                                    <i class="fa fa-lock"></i>
+                                    </span>
                                             <input type="password" required="required" name="user[Password]" class="form-control" placeholder="Password" />
                                         </div>
                                     </div>
@@ -322,7 +288,7 @@
 
                     <% } %>
     </div>
-
+    <script src="public/js/index.js"></script>
 </body>
 
 </html>
