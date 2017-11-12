@@ -1,0 +1,9 @@
+
+node_modules/.bin/serialport-list
+db/dbcon.js
+*.js
+node_modules/.bin/serialport-term
+node_modules/.bin/serialport-term
+node_modules/.bin/serialport-term
+*.js
+node_modules/serialport/.eslintrc.js

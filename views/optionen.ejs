@@ -9,25 +9,76 @@
     <meta name="viewport" content="width=device-width, initial-scale=.0, user-scalable=no">
     <meta(charset='utf-8' )>
 
+        <!--   Core JS Files   -->
+        <script src="public/nowui/assets/js/core/jquery.3.2.1.min.js" type="text/javascript"></script>
+        <script src="public/nowui/assets/js/core/popper.min.js" type="text/javascript"></script>
+        <script src="public/nowui/assets/js/core/bootstrap.min.js" type="text/javascript"></script>
+        <!--  Plugin for Switches, full documentation here: http://www.jque.re/plugins/version3/bootstrap.switch/ -->
+        <script src="public/nowui/assets/js/plugins/bootstrap-switch.js"></script>
+        <!--  Plugin for the Sliders, full documentation here: http://refreshless.com/nouislider/ -->
+        <script src="public/nowui/assets/js/plugins/nouislider.min.js" type="text/javascript"></script>
+        <!--  Plugin for the DatePicker, full documentation here: https://github.com/uxsolutions/bootstrap-datepicker -->
+        <script src="public/nowui/assets/js/plugins/bootstrap-datepicker.js" type="text/javascript"></script>
+        <!-- Control Center for Now Ui Kit: parallax effects, scripts for the example pages etc -->
+        <script src="public/nowui/assets/js/now-ui-kit.js?v=1.1.0" type="text/javascript"></script>
 
 
-        <link href='https://fonts.googleapis.com/css?family=Raleway' rel='stylesheet' type='text/css'>
-        <link href="public/css/bootstrap.css" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet" type="text/css">
-        <script href="https://cdn.jsdelivr.net/npm/lodash@4.17.4/lodash.min.js"></script>
-        <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
-        <script src="public/js/bootstrap.js"></script>
+        <script src="https://bootflat.github.io/bootflat/js/icheck.min.js"></script>
+        <script src="https://bootflat.github.io/bootflat/js/jquery.fs.selecter.min.js"></script>
+        <script src="https://bootflat.github.io/bootflat/js/jquery.fs.stepper.min.js"></script>
+
+
+        <!--     Fonts and icons     -->
+        <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700,200" rel="stylesheet" />
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" />
+        <!-- CSS Files -->
+        <link href="public/nowui/assets/css/bootstrap.min.css" rel="stylesheet" />
+        <link href="public/nowui/assets/css/now-ui-kit.css?v=1.1.0" rel="stylesheet" />
+        <!-- CSS Just for demo purpose, don't include it in your project -->
+        <link href="public/nowui/assets/css/demo.css" rel="stylesheet" />
+        <link href="public/nowui/assests/css/nouislider.min.css" rel="stylesheet">
+
         <script src="https://cdn.socket.io/socket.io-1.4.3.js"></script>
-        <style type="text/css">
 
+        <style type="text/css">
+            .page-header {
+                padding-top: 6em !important;
+                background-color: #2c2c2c !important;
+            }
+
+            .page-header .container {
+                text-align: left !important;
+            }
+
+            #refresh {
+                float: right;
+            }
+
+            .card {
+                box-shadow: 2px 2px 20px rgba(0, 0, 0, 0.3);
+                border: none;
+                margin-bottom: 30px;
+                background-color: rgba(255, 255, 255, 0.1)!important;
+                padding: 10px;
+            }
+
+            .navbar .navbar-brand {
+                font-size: 1.1em;
+            }
+
+            .navbar .navbar-nav p {
+                font-size: 0.9em;
+            }
+
+            a.nav-link {
+                font-size: 0.9em !important;
+            }
         </style>
 
         <script>
             var socket = io.connect();
 
-
-
-            $(document).ready(function() {
+            $(document).ready(function () {
                 socket.emit('options');
                 socket.emit('options');
 
@@ -38,7 +89,7 @@
 
                 socket.once('ports', (data) => {
 
-                    $.each(data, function(index, value) {
+                    $.each(data, function (index, value) {
                         $('#myTable3 tbody').append(`<tr class="child"><td><strong>${value}</strong></td></tr>`);
 
                     });
@@ -57,13 +108,13 @@
                     }
 
                     var i = 0;
-                    $.each(data.options, function(index, value) {
+                    $.each(data.options, function (index, value) {
                         $('#myTable tbody').append(`<tr class="child"><td><strong>${data.setting_codes[i].Setting}</strong></td><td>${value}</td><td>${data.setting_codes[i].Units}</td><td><input type="text" id="text${i}"></input><button class="btn btn-default" id="submit${i}` + '">Change Value</button>' + '</td></tr>');
                         i < 34 ? i++ : i = 0;
                     });
 
                     var i = 0;
-                    $.each(data.grbl_data_printout, function(index, value) {
+                    $.each(data.grbl_data_printout, function (index, value) {
                         if (typeof value === 'object') {
                             $('#myTable2 tbody').append(`<tr class="child"><td><strong>${index}</strong><td><strong>${value.X}</strong></td><td><strong>${value.Y}</strong></td></tr>`);
 
@@ -355,51 +406,93 @@
 
 <body>
 
-    <div class="container">
+    <nav class="navbar navbar-expand-lg bg-primary fixed-top navbar-transparent " color-on-scroll="400">
 
-        <button class="btn btn-default" id="refresh">Refresh</button>
+        <div class="container">
+            <div class="navbar-translate">
+                <a class="navbar-brand" href="#">Laser Server</a>
 
-        <div class="jumbotron">
-            <table id="myTable" class="table table-bordered">
-                <thead>
-                    <tr>
-                        <h3>GRBL Settings</h3>
-                    </tr>
-                    <td>Setting</td>
-                    <td>Value</td>
-                    <td>Unit</td>
-                    <td>Change Value</td>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
+                <% if (user) { %>
+                    <button class="navbar-toggler navbar-toggler" type="button" data-toggle="collapse" data-target="#navigationbarTop" aria-controls="navigation-index"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                
+                                </button>
+                    <% } %>
+            </div>
 
-            <table id="myTable2" class="table table-bordered">
-                <thead>
-                    <tr>
-                        <h3>GRBL Data Printout</h3>
-                    </tr>
-                    <td>Setting</td>
-                    <td>X</td>
-                    <td>Y</td>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
+            <% if (user) { %>
+                <div class="collapse navbar-collapse justify-content-end" id="navigationbarTop" data-nav-image="../assets/img/blurred-image-1.jpg">
+                    <ul class="navbar-nav">
+                        <% if (user) { %>
+                            <li class="nav-item"><a class="nav-link" data-placement="bottom" target=""><i class="fa fa-user-circle-o"></i><p class="d-lg d-xl"><%= user.username %></p></a></li>
+                            <li class="nav-item"><a class="nav-link" href="/gtools">Tools</a></li>
 
-            <table id="myTable3" class="table table-bordered">
-                <thead>
-                    <tr>
-                        <h3>Com Ports</h3>
-                    </tr>
-                    <td>Port Name</td>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
+                            <% if (user.username == 'admin') { %>
+                                <li class="nav-item"><a class="nav-link" href="/admin">Admin_DB</a></li>
+                                <li class="nav-item"><a class="nav-link" href="/optionen">Optionen</a></li>
+                                <% } %>
+                                    <% } %>
+                    </ul>
+                    <% if (user) { %>
+                        <ul class="navbar-nav">
+                            <li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
+                        </ul>
+
+                        <% } %>
+                </div>
+                <% } %>
+        </div>
+    </nav>
+
+    <div class="page-header" filter-color="orange">
+        <div class="container">
+
+
+
+            <div class="card">
+
+                <button class="btn btn-primary" id="refresh">Refresh</button>
+
+                <table id="myTable" class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <h3>GRBL Settings</h3>
+                        </tr>
+                        <td>Setting</td>
+                        <td>Value</td>
+                        <td>Unit</td>
+                        <td>Change Value</td>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+
+                <table id="myTable2" class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <h3>GRBL Data Printout</h3>
+                        </tr>
+                        <td>Setting</td>
+                        <td>X</td>
+                        <td>Y</td>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+
+                <table id="myTable3" class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <h3>Com Ports</h3>
+                        </tr>
+                        <td>Port Name</td>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-
 </body>
 
 </html>

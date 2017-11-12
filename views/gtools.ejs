@@ -42,7 +42,7 @@
             const socket = io.connect();
             var lastCommand = "";
 
-            $(document).ready(function() {
+            $(document).ready(function () {
 
                 /*socket.once('ports', (data) => {
     
@@ -66,14 +66,14 @@
                 })*/
 
 
-                socket.on("percentage", function(percentage) {
+                socket.on("percentage", function (percentage) {
                     //console.log(percentage);
                     $('.progress-bar').text(parseFloat(percentage).toPrecision(4) + '%');
                     $('.progress-bar').width(percentage + '%');
                 });
 
 
-                socket.on("newCommand", function(_grbl_daten) {
+                socket.on("newCommand", function (_grbl_daten) {
                     console.log(_grbl_daten);
 
                     try {
@@ -92,13 +92,13 @@
                             lastCommand = grbl_daten.command;
                         }
 
-                        $("#MXPos").text(`${Math.round((grbl_daten.MPos.Y)*100)/100} mm`);
-                        $("#MYPos").text(`${Math.round((grbl_daten.MPos.X)*100)/100} mm`);
+                        $("#MXPos").text(`${Math.round((grbl_daten.MPos.Y) * 100) / 100} mm`);
+                        $("#MYPos").text(`${Math.round((grbl_daten.MPos.X) * 100) / 100} mm`);
                         $("#status").text(grbl_daten.status);
-                        $("#WXPos").text(`${Math.round((grbl_daten.MPos.X - grbl_daten.WCO.X)*100)/100} mm`);
-                        $("#WYPos").text(`${Math.round((grbl_daten.MPos.Y - grbl_daten.WCO.Y)*100)/100} mm`);
-                        $("#WCOX").text(`${Math.round((grbl_daten.WCO.X)*100)/100} mm`);
-                        $("#WCOY").text(`${Math.round((grbl_daten.WCO.Y)*100)/100} mm`);
+                        $("#WXPos").text(`${Math.round((grbl_daten.MPos.X - grbl_daten.WCO.X) * 100) / 100} mm`);
+                        $("#WYPos").text(`${Math.round((grbl_daten.MPos.Y - grbl_daten.WCO.Y) * 100) / 100} mm`);
+                        $("#WCOX").text(`${Math.round((grbl_daten.WCO.X) * 100) / 100} mm`);
+                        $("#WCOY").text(`${Math.round((grbl_daten.WCO.Y) * 100) / 100} mm`);
                         $("#feed").text(`${grbl_daten.FS.F} mm/min`);
                         $("#spindle").text(grbl_daten.FS.S);
                         $("#ovf").text(`${grbl_daten.Ov.F} %`);
@@ -123,18 +123,18 @@
                             });
                         }
 
-                        $(function() {
+                        $(function () {
                             var pre = $("#scrollpre");
                             pre.scrollTop(pre.prop("scrollHeight"));
                         });
                     }
                 });
 
-                $("#unlock").click(function() {
+                $("#unlock").click(function () {
                     socket.emit("entsperren");
                 });
 
-                $("#senden").click(function() {
+                $("#senden").click(function () {
                     var command = $("#command").val();
                     socket.emit("command", {
                         command: command
@@ -142,79 +142,79 @@
                 });
 
 
-                $("#homing").click(function() {
+                $("#homing").click(function () {
                     socket.emit("homing");
                 });
 
 
-                $("#open").click(function() {
+                $("#open").click(function () {
                     socket.emit("open");
                 });
 
-                $("#close").click(function() {
+                $("#close").click(function () {
                     socket.emit("close");
                 });
 
-                $("#goToZero").click(function() {
+                $("#goToZero").click(function () {
                     socket.emit("goToZero");
                 });
 
-                $("#get").click(function() {
+                $("#get").click(function () {
                     socket.emit("get");
                 });
 
-                $("#options").click(function() {
+                $("#options").click(function () {
                     socket.emit("options");
                 });
 
-                $("#softReset").click(function() {
+                $("#softReset").click(function () {
                     socket.emit("softReset");
                 });
 
-                $("#sendeCode").click(function() {
+                $("#sendeCode").click(function () {
                     socket.emit("sendeCode");
                 });
 
                 //
-                $("#pauseCode").click(function() {
+                $("#pauseCode").click(function () {
                     socket.emit("pauseCode");
                 });
 
-                $("#resumeCode").click(function() {
+                $("#resumeCode").click(function () {
                     socket.emit("resumeCode");
                 });
 
-                $("#stopCode").click(function() {
+                $("#stopCode").click(function () {
                     socket.emit("stopCode");
                 });
                 //
 
-                $("#setZero1").click(function() {
+                $("#setZero1").click(function () {
                     socket.emit("setZero1");
 
                 });
 
-                $("#setZero2").click(function() {
+                $("#setZero2").click(function () {
                     socket.emit("setZero2");
 
                 });
 
-                $("#setZero3").click(function() {
+                $("#setZero3").click(function () {
                     socket.emit("setZero3");
 
                 });
 
-                $("#setZero4").click(function() {
+                $("#setZero4").click(function () {
                     socket.emit("setZero4");
 
                 });
 
-                $("#setZero5").click(function() {
+                $("#setZero5").click(function () {
                     socket.emit("setZero5");
 
                 });
 
-                $("#setZero6").click(function() {
+                $("#setZero6").click(function () {
                     socket.emit("setZero6");
 
                 });
@@ -224,25 +224,25 @@
                 var xmm = 0.1;
                 var xmmy = 0.1;
 
-                $("#xp").click(function() {
+                $("#xp").click(function () {
                     socket.emit("xp", {
                         mm: xmm
                     });
                 });
 
-                $("#xm").click(function() {
+                $("#xm").click(function () {
                     socket.emit("xm", {
                         mm: xmm
                     });
                 });
 
-                $("#yp").click(function() {
+                $("#yp").click(function () {
                     socket.emit("yp", {
                         mm: ymm
                     });
                 });
 
-                $("#ym").click(function() {
+                $("#ym").click(function () {
                     socket.emit("ym", {
                         mm: ymm
                     });
@@ -251,7 +251,7 @@
 
                 //Slider-control
 
-                $('#sliderx').change(function() {
+                $('#sliderx').change(function () {
                     $('#outx').text(
                         $('#sliderx').val()
                     );
@@ -259,7 +259,7 @@
                     console.log(xmm);
                 })
 
-                $('#slidery').change(function() {
+                $('#slidery').change(function () {
                     $('#outy').text(
                         $('#slidery').val()
                     );
@@ -269,7 +269,7 @@
 
                 //SAlider 2 (test)
 
-                $('#sliderx1').change(function() {
+                $('#sliderx1').change(function () {
                     $('#outx1').text(
                         $('#sliderx1').val()
                     );
@@ -280,67 +280,67 @@
                     });
                 })
 
-                $('#slidery1').change(function() {
-                        $('#outy1').text(
-                            $('#slidery1').val()
-                        );
-                        ymm = $('#slidery1').val()
-                        console.log(ymm);
-                        socket.emit("yp1", {
-                            mm: ymm
-                        });
-                    })
-                    //
-                    //Laser Control
+                $('#slidery1').change(function () {
+                    $('#outy1').text(
+                        $('#slidery1').val()
+                    );
+                    ymm = $('#slidery1').val()
+                    console.log(ymm);
+                    socket.emit("yp1", {
+                        mm: ymm
+                    });
+                })
+                //
+                //Laser Control
 
 
-                $('#laserOn').click(function() {
+                $('#laserOn').click(function () {
                     socket.emit("command", {
                         command: "M03"
                     });
                 })
 
-                $('#laserOff').click(function() {
+                $('#laserOff').click(function () {
                     socket.emit("command", {
                         command: "M05"
                     });
                 })
 
-                $('#G54').click(function() {
+                $('#G54').click(function () {
                     socket.emit("command", {
                         command: "G54"
                     });
                 })
 
-                $('#G55').click(function() {
+                $('#G55').click(function () {
                     socket.emit("command", {
                         command: "G55"
                     });
                 })
 
-                $('#G56').click(function() {
+                $('#G56').click(function () {
                     socket.emit("command", {
                         command: "G56"
                     });
                 })
 
-                $('#G57').click(function() {
+                $('#G57').click(function () {
                     socket.emit("command", {
                         command: "G57"
                     });
                 })
-                $('#G58').click(function() {
+                $('#G58').click(function () {
                     socket.emit("command", {
                         command: "G58"
                     });
                 })
-                $('#G59').click(function() {
+                $('#G59').click(function () {
                     socket.emit("command", {
                         command: "G59"
                     });
                 })
 
-                $('#sliderlaser').change(function() {
+                $('#sliderlaser').change(function () {
                     $('#outlaser').text(
                         $('#sliderlaser').val()
                     );
@@ -353,12 +353,12 @@
 
 
                 //File 
-                $('#ul').on('change', function() {
+                $('#ul').on('change', function () {
 
                     var reader = new FileReader();
                     var text;
 
-                    reader.onload = function(e) {
+                    reader.onload = function (e) {
                         text = reader.result
                         console.log(reader.result);
                         socket.emit("fileinput", text);
@@ -373,49 +373,49 @@
 
                 // Feed rate override
 
-                $("#feed_ovr_reset").click(function() {
+                $("#feed_ovr_reset").click(function () {
                     socket.emit("feed_ovr_reset");
                 });
-                $("#feed_ovr_plus").click(function() {
+                $("#feed_ovr_plus").click(function () {
                     socket.emit("feed_ovr_plus");
                 });
-                $("#feed_ovr_minus").click(function() {
+                $("#feed_ovr_minus").click(function () {
                     socket.emit("feed_ovr_minus");
                 });
-                $("#feed_ovr_fplus").click(function() {
+                $("#feed_ovr_fplus").click(function () {
                     socket.emit("feed_ovr_fplus");
                 });
-                $("#feed_ovr_fminus").click(function() {
+                $("#feed_ovr_fminus").click(function () {
                     socket.emit("feed_ovr_fminus");
                 });
 
-                $("#spindle_ovr_reset").click(function() {
+                $("#spindle_ovr_reset").click(function () {
                     socket.emit("spindle_ovr_reset");
                 });
-                $("#spindle_ovr_plus").click(function() {
+                $("#spindle_ovr_plus").click(function () {
                     socket.emit("spindle_ovr_plus");
                 });
-                $("#spindle_ovr_minus").click(function() {
+                $("#spindle_ovr_minus").click(function () {
                     socket.emit("spindle_ovr_minus");
                 });
-                $("#spindle_ovr_fplus").click(function() {
+                $("#spindle_ovr_fplus").click(function () {
                     socket.emit("spindle_ovr_fplus");
                 });
-                $("#spindle_ovr_fminus").click(function() {
+                $("#spindle_ovr_fminus").click(function () {
                     socket.emit("spindle_ovr_fminus");
                 });
 
 
-                $("#spindle_ovr_stop").click(function() {
+                $("#spindle_ovr_stop").click(function () {
                     socket.emit("spindle_ovr_stop");
                 });
-                $("#rapid_ovr_reset").click(function() {
+                $("#rapid_ovr_reset").click(function () {
                     socket.emit("rapid_ovr_reset");
                 });
-                $("#rapid_ovr_medium").click(function() {
+                $("#rapid_ovr_medium").click(function () {
                     socket.emit("rapid_ovr_medium");
                 });
-                $("#rapid_ovr_low").click(function() {
+                $("#rapid_ovr_low").click(function () {
                     socket.emit("rapid_ovr_low");
                 });
 
@@ -454,17 +454,17 @@
             body {
                 background: linear-gradient(#000, #333);
             }
-            
+
             input[type=range] {
                 -webkit-appearance: none;
                 width: 100%;
                 margin: 12.85px 0;
             }
-            
+
             input[type=range]:focus {
                 outline: none;
             }
-            
+
             input[type=range]::-webkit-slider-runnable-track {
                 width: 100%;
                 height: 3.3px;
@@ -474,7 +474,7 @@
                 border-radius: 1.3px;
                 border: 0.2px solid #000000;
             }
-            
+
             input[type=range]::-webkit-slider-thumb {
                 box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
                 border: 1px solid #000000;
@@ -486,11 +486,11 @@
                 -webkit-appearance: none;
                 margin-top: -13.05px;
             }
-            
+
             input[type=range]:focus::-webkit-slider-runnable-track {
                 background: rgba(13, 13, 13, 0.56);
             }
-            
+
             input[type=range]::-moz-range-track {
                 width: 100%;
                 height: 3.3px;
@@ -500,7 +500,7 @@
                 border-radius: 1.3px;
                 border: 0.2px solid #000000;
             }
-            
+
             input[type=range]::-moz-range-thumb {
                 box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
                 border: 1px solid #000000;
@@ -510,7 +510,7 @@
                 background: rgba(0, 0, 0, 0.27);
                 cursor: pointer;
             }
-            
+
             input[type=range]::-ms-track {
                 width: 100%;
                 height: 3.3px;
@@ -519,21 +519,21 @@
                 border-color: transparent;
                 color: transparent;
             }
-            
+
             input[type=range]::-ms-fill-lower {
                 background: rgba(0, 0, 0, 0.56);
                 border: 0.2px solid #000000;
                 border-radius: 2.6px;
                 box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
             }
-            
+
             input[type=range]::-ms-fill-upper {
                 background: rgba(0, 0, 0, 0.56);
                 border: 0.2px solid #000000;
                 border-radius: 2.6px;
                 box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
             }
-            
+
             input[type=range]::-ms-thumb {
                 box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
                 border: 1px solid #000000;
@@ -544,27 +544,27 @@
                 cursor: pointer;
                 height: 3.3px;
             }
-            
+
             input[type=range]:focus::-ms-fill-lower {
                 background: rgba(0, 0, 0, 0.56);
             }
-            
+
             input[type=range]:focus::-ms-fill-upper {
                 background: rgba(13, 13, 13, 0.56);
             }
-            
+
             .navbar-inverse {
                 background-color: #000;
                 border: 1px solid #555;
             }
-            
+
             .card {
                 box-shadow: 2px 2px 20px rgba(0, 0, 0, 0.3);
                 border: none;
                 margin-bottom: 30px;
                 background-color: rgba(255, 255, 255, 0.1)!important;
             }
-            
+
             .well-1 {
                 min-height: 400px;
                 padding: 20px;
@@ -576,7 +576,7 @@
                 -webkit-box-shadow-bottom: 4px 4px 4px black;
                 box-shadow-bottom: 4px 4px 4px black;
             }
-            
+
             .well-2 {
                 padding: 20px;
                 margin-bottom: 20px;
@@ -586,27 +586,27 @@
                 -webkit-box-shadow: 0 0 5px 5px#000;
                 box-shadow: 0 0 5px 5px#000;
             }
-            
+
             .btn-info {
                 color: #000;
                 background-color: #777;
                 border-color: #000000;
                 border-radius: 10px;
             }
-            
+
             .btn-info:focus,
             .btn-info.focus {
                 color: #fff;
                 background-color: #222222;
                 border-color: #000000;
             }
-            
+
             .btn-info:hover {
                 color: #fff;
                 background-color: #444444;
                 border-color: #000000;
             }
-            
+
             .btn-info:active,
             .btn-info.active,
             .open>.dropdown-toggle.btn-info {
@@ -614,7 +614,7 @@
                 background-color: #222222;
                 border-color: #000000;
             }
-            
+
             .pre-scrollable {
                 min-height: 200px;
                 max-height: 260px;
@@ -623,33 +623,33 @@
                 font-family: Impact;
                 color: black
             }
-            
+
             ul.v {
                 list-style-type: none;
                 text-align: left;
             }
-            
+
             .row1 {
                 padding-top: 20px;
                 padding-bottom: 0px;
             }
-            
+
             div.gToolsContainer {
                 padding-top: 6em;
             }
-            
+
             .navbar .navbar-brand {
                 font-size: 1.1em;
             }
-            
+
             .navbar .navbar-nav p {
                 font-size: 0.9em;
             }
-            
+
             a.nav-link {
                 font-size: 0.9em !important;
             }
-            
+
             .progress {
                 width: 150px;
                 height: 150px;
@@ -659,7 +659,7 @@
                 box-shadow: none;
                 position: relative;
             }
-            
+
             .progress:after {
                 content: "";
                 width: 100%;
@@ -670,7 +670,7 @@
                 top: 0;
                 left: 0;
             }
-            
+
             .progress>span {
                 width: 50%;
                 height: 100%;
@@ -679,11 +679,11 @@
                 top: 0;
                 z-index: 1;
             }
-            
+
             .progress .progress-left {
                 left: 0;
             }
-            
+
             .progress .progress-bar {
                 width: 100%;
                 height: 100%;
@@ -693,7 +693,7 @@
                 position: absolute;
                 top: 0;
             }
-            
+
             .progress .progress-left .progress-bar {
                 left: 100%;
                 border-top-right-radius: 80px;
@@ -702,11 +702,11 @@
                 -webkit-transform-origin: center left;
                 transform-origin: center left;
             }
-            
+
             .progress .progress-right {
                 right: 0;
             }
-            
+
             .progress .progress-right .progress-bar {
                 left: -100%;
                 border-top-left-radius: 80px;
@@ -716,7 +716,7 @@
                 transform-origin: center right;
                 animation: loading-1 1.8s linear forwards;
             }
-            
+
             .progress .progress-value {
                 width: 90%;
                 height: 90%;
@@ -730,39 +730,39 @@
                 top: 5%;
                 left: 5%;
             }
-            
+
             .progress.blue .progress-bar {
                 border-color: #049dff;
             }
-            
+
             .progress.blue .progress-left .progress-bar {
                 animation: loading-2 1.5s linear forwards 1.8s;
             }
-            
+
             .progress.yellow .progress-bar {
                 border-color: #fdba04;
             }
-            
+
             .progress.yellow .progress-left .progress-bar {
                 animation: loading-3 1s linear forwards 1.8s;
             }
-            
+
             .progress.pink .progress-bar {
                 border-color: #ed687c;
             }
-            
+
             .progress.pink .progress-left .progress-bar {
                 animation: loading-4 0.4s linear forwards 1.8s;
             }
-            
+
             .progress.green .progress-bar {
                 border-color: #1abc9c;
             }
-            
+
             .progress.green .progress-left .progress-bar {
                 animation: loading-5 1.2s linear forwards 1.8s;
             }
-            
+
             @keyframes loading-1 {
                 0% {
                     -webkit-transform: rotate(0deg);
@@ -773,7 +773,7 @@
                     transform: rotate(180deg);
                 }
             }
-            
+
             @keyframes loading-2 {
                 0% {
                     -webkit-transform: rotate(0deg);
@@ -784,7 +784,7 @@
                     transform: rotate(144deg);
                 }
             }
-            
+
             @keyframes loading-3 {
                 0% {
                     -webkit-transform: rotate(0deg);
@@ -795,7 +795,7 @@
                     transform: rotate(90deg);
                 }
             }
-            
+
             @keyframes loading-4 {
                 0% {
                     -webkit-transform: rotate(0deg);
@@ -806,7 +806,7 @@
                     transform: rotate(36deg);
                 }
             }
-            
+
             @keyframes loading-5 {
                 0% {
                     -webkit-transform: rotate(0deg);
@@ -817,7 +817,7 @@
                     transform: rotate(126deg);
                 }
             }
-            
+
             @media only screen and (max-width: 990px) {
                 .progress {
                     margin-bottom: 20px;
@@ -843,7 +843,8 @@
                 <a class="navbar-brand" href="#">Laser Server</a>
 
                 <% if (user) { %>
-                    <button class="navbar-toggler navbar-toggler" type="button" data-toggle="collapse" data-target="#navigationbarTop" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
+                    <button class="navbar-toggler navbar-toggler" type="button" data-toggle="collapse" data-target="#navigationbarTop" aria-controls="navigation-index"
+                        aria-expanded="false" aria-label="Toggle navigation">
 
                 </button>
                     <% } %>
@@ -885,22 +886,22 @@
                             <div class="row">
 
                                 <!--
-                                <div class="dropdown" id="dd">
-                                    <button class="btn btn-primary dropdown-toggle" type="button" id="drop_btn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                              Com Ports
-                                            </button>
-                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="drop_body">
-
-                                    </div>
-                                </div>
-                                -->
+                                            <div class="dropdown" id="dd">
+                                                <button class="btn btn-primary dropdown-toggle" type="button" id="drop_btn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                          Com Ports
+                                                        </button>
+                                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="drop_body">
+            
+                                                </div>
+                                            </div>
+                                            -->
 
                                 <button id="open" class="btn btn-primary">Port öffnen!</button>
                                 <button id="close" class="btn btn-primary">Port schließen!</button>
                                 <br>
                                 <button id="senden" class="btn btn-primary">Befehl senden!</button>
                                 <br>
-                                <input id="command" type="text" class="form-control" placeholder="Enter command!" />
+                                <input id="command" type="text" class="form-control" placeholder="Enter command!">
                                 <br>
                                 <button id="sendeCode" class="btn btn-primary">Start</button>
                                 <button id="pauseCode" class="btn btn-primary">Pause</button>
@@ -908,8 +909,8 @@
                                 <button id="stopCode" class="btn btn-primary">Cancel</button>
                                 <br>
                                 <label class="btn btn-primary"><span class="glyphicon glyphicon-folder-open"></span> 
-                                Browse <input id="ul" type="file" style="position: fixed; top: -100em" accept="text/*"></input>
-                                </label>
+                                            Browse <input id="ul" type="file" style="position: fixed; top: -100em" accept="text/*">
+                                            </label>
                                 <button id="options" class="btn btn-primary">Optionen!</button>
                                 <button id="softReset" class="btn btn-primary">Soft Reset!</button>
 
@@ -925,30 +926,96 @@
 
                         </div>
                     </div>
+                    <div class="card">
+                        <div class="btn-group btn-group-justified">
+                            <div class="btn-group">
+                                <button id="laserOn" class="btn btn-primary">Laser On!</button>
+                            </div>
+                            <div class="btn-group">
+                                <button id="laserOff" class="btn btn-primary">Laser Off!</button>
+                            </div>
+                        </div>
+                        <div>
+                            <strong>Laser PWM</strong>
+                            <input id="sliderlaser" type="range" min="9" max="255" step="1" value="0">
+                            <p id="outlaser">0</p>
+                        </div>
+                        <div class="card-body">
+                            <strong>Live positioning</strong>
+                            <div>
+                                <strong>X-Axis</strong>
+                                <input id="sliderx1" type="range" min="0.0" max="329" step="0.5" value="0">
+                                <p id="outx1">123.5</p>
+                                <strong>Y-Axis<strong>
+                                                    
+                                    <input id="slidery1" type="range" min="0.0" max="382" step="0.5" value="0">
+                                    <p id="outy1">0.0</p>
+                                </strong></strong>
+                            </div><strong><strong>
+                                </strong></strong>
+                        </div><strong><strong>
+            
+                            </strong></strong>
+                    </div>
                 </div>
+
+
+
+
 
 
                 <div class="col-md-4">
                     <div class="card">
                         <div class="card-body">
                             <div class="container-fluid">
-                                <strong>Konsole</strong>
-                                <div id="scrollpre" class="well-sm pre-scrollable">
-                                    <ul id="liste" class="v"> </ul>
+
+                                <div>
+                                    <button id="G54" class="btn btn-primary">G54</button>
+                                    <button id="G55" class="btn btn-primary">G55</button>
+                                    <button id="G56" class="btn btn-primary">G56</button>
+                                    <button id="G57" class="btn btn-primary">G57</button>
+                                    <button id="G58" class="btn btn-primary">G58</button>
+                                    <button id="G59" class="btn btn-primary">G59</button>
                                 </div>
+
+                                <div>
+                                    <button id="setZero1" class="btn btn-primary">Set G54 Zero</button>
+                                    <button id="setZero2" class="btn btn-primary">Set G55 Zero</button>
+                                    <button id="setZero3" class="btn btn-primary">Set G56 Zero</button>
+                                    <button id="setZero4" class="btn btn-primary">Set G57 Zero</button>
+                                    <button id="setZero5" class="btn btn-primary">Set G58 Zero</button>
+                                    <button id="setZero6" class="btn btn-primary">Set G59 Zero</button>
+                                </div>
+
+                                <div>
+                                    <button id="feed_ovr_reset" class="btn btn-primary">F 100%</button>
+                                    <button id="feed_ovr_plus" class="btn btn-primary">F +10%</button>
+                                    <button id="feed_ovr_minus" class="btn btn-primary">F -10</button>
+                                    <button id="feed_ovr_fplus" class="btn btn-primary">F +1%</button>
+                                    <button id="feed_ovr_fminus" class="btn btn-primary">F -1%</button>
+                                </div>
+
+                                <div>
+                                    <button id="rapid_ovr_reset" class="btn btn-primary">R 100%</button>
+                                    <button id="rapid_ovr_medium" class="btn btn-primary">R MEDIUM</button>
+                                    <button id="rapid_ovr_low" class="btn btn-primary">R LOW</button>
+
+                                    <button id="spindle_ovr_reset" class="btn btn-primary">S 100%</button>
+                                    <button id="spindle_ovr_plus" class="btn btn-primary">S +10%</button>
+                                    <button id="spindle_ovr_minus" class="btn btn-primary">S -10%</button>
+                                    <button id="spindle_ovr_fplus" class="btn btn-primary">S +1%</button>
+                                    <button id="spindle_ovr_fminus" class="btn btn-primary">S -1%</button>
+                                    <button id="spindle_ovr_stop" class="btn btn-primary">S STOP</button>
+                                </div>
+
                             </div>
                         </div>
-
-                        <div id="sliderRegular" class="slider"></div>
-                        <div id="sliderDouble" class="slider slider-info"></div>
-
-
-
                     </div>
+
+
+
+
                 </div>
-
-
-
                 <div class="col-md-4">
                     <div class="card">
                         <div class="card-body">
@@ -1017,11 +1084,11 @@
 
                                 <div class="row">
 
-                                    <input id="sliderx" type="range" min="0.1" max="20" step="0.1" value="0.1"></input>
+                                    <input id="sliderx" type="range" min="0.1" max="20" step="0.1" value="0.1">
                                     <p id="outx">0.1</p>
 
 
-                                    <input id="slidery" type="range" min="0.1" max="20" step="0.1" value="0.1"></input>
+                                    <input id="slidery" type="range" min="0.1" max="20" step="0.1" value="0.1">
                                     <p id="outy">0.1</p>
 
                                 </div>
@@ -1069,109 +1136,29 @@
                 </div>
             </div>
 
-
-
-
             <div class="row">
-                <div class="col-md-4">
+                <div class="col">
                     <div class="card">
                         <div class="card-body">
                             <div class="container-fluid">
-
-                                <div>
-                                    <button id="G54" class="btn btn-primary">G54</button>
-                                    <button id="G55" class="btn btn-primary">G55</button>
-                                    <button id="G56" class="btn btn-primary">G56</button>
-                                    <button id="G57" class="btn btn-primary">G57</button>
-                                    <button id="G58" class="btn btn-primary">G58</button>
-                                    <button id="G59" class="btn btn-primary">G59</button>
+                                <strong>Konsole</strong>
+                                <div id="scrollpre" class="well-sm pre-scrollable">
+                                    <ul id="liste" class="v"> </ul>
                                 </div>
-
-                                <div>
-                                    <button id="setZero1" class="btn btn-primary">Set G54 Zero</button>
-                                    <button id="setZero2" class="btn btn-primary">Set G55 Zero</button>
-                                    <button id="setZero3" class="btn btn-primary">Set G56 Zero</button>
-                                    <button id="setZero4" class="btn btn-primary">Set G57 Zero</button>
-                                    <button id="setZero5" class="btn btn-primary">Set G58 Zero</button>
-                                    <button id="setZero6" class="btn btn-primary">Set G59 Zero</button>
-                                </div>
-
-                                <div>
-                                    <button id="feed_ovr_reset" class="btn btn-primary">F 100%</button>
-                                    <button id="feed_ovr_plus" class="btn btn-primary">F +10%</button>
-                                    <button id="feed_ovr_minus" class="btn btn-primary">F -10</button>
-                                    <button id="feed_ovr_fplus" class="btn btn-primary">F +1%</button>
-                                    <button id="feed_ovr_fminus" class="btn btn-primary">F -1%</button>
-                                </div>
-
-                                <div>
-                                    <button id="rapid_ovr_reset" class="btn btn-primary">R 100%</button>
-                                    <button id="rapid_ovr_medium" class="btn btn-primary">R MEDIUM</button>
-                                    <button id="rapid_ovr_low" class="btn btn-primary">R LOW</button>
-
-                                    <button id="spindle_ovr_reset" class="btn btn-primary">S 100%</button>
-                                    <button id="spindle_ovr_plus" class="btn btn-primary">S +10%</button>
-                                    <button id="spindle_ovr_minus" class="btn btn-primary">S -10%</button>
-                                    <button id="spindle_ovr_fplus" class="btn btn-primary">S +1%</button>
-                                    <button id="spindle_ovr_fminus" class="btn btn-primary">S -1%</button>
-                                    <button id="spindle_ovr_stop" class="btn btn-primary">S STOP</button>
-                                </div>
-
                             </div>
                         </div>
+
+                        <div id="sliderRegular" class="slider"></div>
+                        <div id="sliderDouble" class="slider slider-info"></div>
+
+
+
                     </div>
-
-
-
-
-                    <div class="col-md-8">
-                        <div class="card">
-                            <% if (user.username == 'admin') { %>
-
-                                <div class="card">
-                                    <div class="card-body">
-                                        <strong>Live positioning</strong>
-                                        <div>
-                                            <strong>X-Axis</strong>
-                                            <input id="sliderx1" type="range" min="0.0" max="329" step="0.5" value="0"></input>
-                                            <p id="outx1">0.0</p>
-                                            <strong>Y-Axis<strong>
-                                        
-                        <input id="slidery1" type="range" min="0.0" max="382" step="0.5" value="0"></input>
-                        <p id="outy1">0.0</p>
-                    </div>
-                    </div>
-
-                </div>
-
-
-                <div class="card">
-                    <div class="card-body">
-                    <div class="btn-group btn-group-justified">
-                        <div class="btn-group">
-                            <button id="laserOn" class="btn btn-primary">Laser On!</button>
-                        </div>
-                        <div class="btn-group">
-                            <button id="laserOff" class="btn btn-primary">Laser Off!</button>
-                        </div>
-                    </div>
-                        <div>
-                        <strong>Laser PWM</strong>
-                                            <input id="sliderlaser" type="range" min="9" max="255" step="1" value="0"></input>
-                                            <p id="outlaser">0</p>
-                                        </div>
-
-                                        <% } else { %>
-                                            <% } %>
-
-
-                                    </div>
-                                </div>
-                        </div>
-                    </div>
-                </div>
+                </div><strong><strong>
+                        </strong></strong>
             </div>
         </div>
+
     </div>
 
 </body>
