@@ -95,6 +95,7 @@ $(document).ready(function() {
                 id: getSelectedRow().code_id,
                 name: getSelectedRow().code_name,
                 location: getSelectedRow().code_location,
+                from: getSelectedRow().code_from
             };
             socket.emit('select_code', dat);
         });
@@ -113,7 +114,18 @@ $(document).ready(function() {
 
     $('#select_button').click(function() {
         socket.emit('plot_code');
-
     });
+
+    socket.on('img', (data) => {
+        console.log(data);
+
+        function image() {
+            var img = document.createElement("IMG");
+            img.src = "public/images/img.png";
+            $('#image').html(img);
+        }
+        image();
+    })
+
 
 });

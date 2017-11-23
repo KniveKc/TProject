@@ -43,7 +43,8 @@ $(document).ready(function() {
                 lastname: getSelectedRow().lastname,
                 username: getSelectedRow().username,
                 pwd: getSelectedRow().pwd,
-                ts: getSelectedRow().ts
+                ts: getSelectedRow().ts,
+                email: getSelectedRow().email
             }
             socket.emit('select_db', dat);
         });
@@ -69,7 +70,8 @@ $(document).ready(function() {
                 lastname: getSelectedRow2().lastname,
                 username: getSelectedRow2().username,
                 pwd: getSelectedRow2().pwd,
-                ts: getSelectedRow2().ts
+                ts: getSelectedRow2().ts,
+                email: getSelectedRow2().email
             }
             socket.emit('select_db2', dat2);
 

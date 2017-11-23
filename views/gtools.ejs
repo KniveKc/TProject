@@ -446,11 +446,11 @@
                         <% if (user) { %>
                             <li class="nav-item"><a class="nav-link" data-placement="bottom" target=""><i class="fa fa-user-circle-o"></i><p class="d-lg d-xl"><%= user.username %></p></a></li>
                             <li class="nav-item"><a class="nav-link" href="/gtools">Tools</a></li>
-
+                            <li class="nav-item"><a class="nav-link" href="/code_db">Code DB</a></li>
                             <% if (user.username == 'admin') { %>
                                 <li class="nav-item"><a class="nav-link" href="/admin">Admin DB</a></li>
                                 <li class="nav-item"><a class="nav-link" href="/optionen">Optionen</a></li>
-                                <li class="nav-item"><a class="nav-link" href="/code_db">Code DB</a></li>
+
                                 <% } %>
                                     <% } %>
                     </ul>
@@ -653,7 +653,6 @@
                             </div>
 
                             <button id="goToZero" class="btn btn-primary">Go to Zero</button>
-                            <button id="get" class="btn btn-primary">Get</button>
 
                         </div>
                     </div>

@@ -8,6 +8,8 @@ function switchDialogs() {
 
 $(document).ready(function() {
 
+    //socket.emit('password_request', { username: 'admin', email: 'david.bransch@gmail.com' });
+
     socket.on("percentage", function(percentage) {
         console.log(percentage);
         $('.progress-bar').text(parseInt(percentage) + '%');

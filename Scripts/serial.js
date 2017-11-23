@@ -4,36 +4,42 @@ const fs = require('fs');
 const serialport = require('serialport'); // Serialport Modul einbinden
 const SerialPort = serialport; // Lokale instanz von Serialport erstellen
 
-const debug = false;
+var debug = false;
+
+if (process.argv[2] == 'dev') {
+    debug = true;
+}
 
 var status = 0;
 var y = 0;
 var handleState = 0;
 var config = {};
 
-noop = () => { return 0; };
+const noop = () => { return 0; };
 
+
+var serial_config = {
+    baudRate: 115200,
+    autoOpen: false,
+    parser: serialport.parsers.readline('\n')
+};
 
 var portName = '/dev/ttyUSB0';
 
-const myPort = new SerialPort(portName, { //Neues Serialport-Objekt erstellen 
-    baudRate: 115200, //Baudrate auf 115200 setzten
-    autoOpen: false, //Port soll sich nicht automatisch öffnen
-    parser: serialport.parsers.readline("\n") //Datenpacket endet mit Zeilenumbruch
-});
+const com_port = new SerialPort(portName, serial_config);
 
 
-myPort.on('open', showPortOpen);
-myPort.on('data', read);
-myPort.on('close', showPortClose);
-myPort.on('error', showError);
+com_port.on('open', showPortOpen);
+com_port.on('data', read);
+com_port.on('close', showPortClose);
+com_port.on('error', showError);
 
 process.on('message', (msg) => {
     if (debug === true) console.log('Message from parent:', msg);
     if (msg.text !== undefined) { sendText(msg.text); }
     if (msg.cmd !== undefined) {
-        (msg.cmd === 'open') ? myPort.open(): noop();
-        (msg.cmd === 'close') ? myPort.close(): noop();
+        (msg.cmd === 'open') ? com_port.open(): noop();
+        (msg.cmd === 'close') ? com_port.close(): noop();
         (msg.cmd === 'pause') ? pause(): noop();
         (msg.cmd === 'resume') ? resume(): noop();
         (msg.cmd === 'stop') ? stop(): noop();
@@ -157,12 +163,12 @@ var grbl_data_printout = {
 
 function showPortOpen(err) {
     if (err) console.log(err);
-    console.log('serialport open. Data rate: ' + myPort.options.baudRate + " Port:" + portName);
-    if (debug === true) console.log('Port open = ' + myPort.isOpen());
+    console.log('serialport open. Data rate: ' + com_port.options.baudRate + " Port:" + portName);
+    if (debug === true) console.log('Port open = ' + com_port.isOpen());
 
     setInterval(function sendStatus(err) {
-        if (myPort.isOpen()) {
-            myPort.write("?"); //Sende ein ? zur Statusabfrage von GRBL, GRBL antwortet mit einem String: <Idle|MPos:0.000,0.000,0.000|FS:0.0,0>
+        if (com_port.isOpen()) {
+            com_port.write("?"); //Sende ein ? zur Statusabfrage von GRBL, GRBL antwortet mit einem String: <Idle|MPos:0.000,0.000,0.000|FS:0.0,0>
         }
 
     }, 200);
@@ -224,7 +230,7 @@ function read(data) {
         grbl_daten.command = data;
     } else if (data.match(/[o]+[k]/g)) {
         //console.log("OK");
-        grbl_daten.command = "Ok";
+        grbl_daten.command = data;
         status = 1;
     } else if (data.match(/[[][A-Z]+(.)+[:]/g)) {
         var arr_data = 0;
@@ -377,33 +383,33 @@ function showError(error) {
 }
 
 function sendText(command) { //Funktion zum senden eines Befehls
-    myPort.write(command + "\n"); // "befehl" + Zeilenumbruch senden
+    com_port.write(command + "\n"); // "befehl" + Zeilenumbruch senden
     console.log("Serial out >>" + command); // und in der Konsole ausgeben
 }
 
 
 function sendHoming() {
-    myPort.write("$H" + "\n");
+    com_port.write("$H" + "\n");
     console.log("Serial out >>" + "$H");
 }
 
 function Open() {
-    myPort.open();
+    com_port.open();
 }
 
 
 function Close() {
-    myPort.close();
+    com_port.close();
 }
 
 function sendZero() {
-    myPort.write("G90 G0 X0 Y0" + "\n");
+    com_port.write("G90 G0 X0 Y0" + "\n");
     console.log("Serial out >>" + "G90 G0 X0 Y0");
 }
 
 
 var y = 0;
-var code = '';
+var code = null;
 
 function sending(gcode, x) {
     if (gcode !== null && x !== null) {
@@ -414,7 +420,7 @@ function sending(gcode, x) {
         handle = setInterval(function() {
             handleState = 1;
             if (status == 1 && x < codeLength) {
-                myPort.write(code[x] + "\n");
+                com_port.write(code[x] + "\n");
                 grbl_daten.command = "Serial out >> " + code[x];
                 x++;
                 y = x;
@@ -426,7 +432,7 @@ function sending(gcode, x) {
 
             } else if (status == 1 && x == codeLength) {
                 clearInterval(handle);
-                myPort.write(code[codeLength] + "\n");
+                com_port.write(code[codeLength] + "\n");
                 console.log("Done");
                 var percentage = 0;
                 handleState = 0;
@@ -451,6 +457,7 @@ function resume() {
 
 function stop() {
     handleState == 1 ? clearInterval(handle) : noop(); // Abfrage ob der Interval zum Senden gesetzt wurde
+    code = null;
 }
 
 

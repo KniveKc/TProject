@@ -1,4 +1,4 @@
-const socket = io.connect();
+var socket = io.connect();
 var lastCommand = "";
 
 $(document).ready(function() {
@@ -116,10 +116,6 @@ $(document).ready(function() {
 
     $("#goToZero").click(function() {
         socket.emit("goToZero");
-    });
-
-    $("#get").click(function() {
-        socket.emit("get");
     });
 
     $("#options").click(function() {
