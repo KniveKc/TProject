@@ -1,9 +1,9 @@
 const socket = io.connect();
 
-var renderer = new THREE.WebGLRenderer();
+var renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
-
+console.log(renderer)
 var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 5000);
 camera.position.set(0, 0, 200);
 camera.lookAt(new THREE.Vector3(0, 0, 0));
@@ -23,6 +23,8 @@ var motionColor = {
     'G2': new THREE.Color("rgb(255, 0, 255)"),
     'G3': new THREE.Color("rgb(255, 255, 0)")
 };
+
+console.log(motionColor);
 
 var addLine = function addLine(modal, v1, v2) {
     var motion = modal.motion;

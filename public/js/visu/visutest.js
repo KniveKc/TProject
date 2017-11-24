@@ -1,39 +1,54 @@
 const socket = io.connect();
 
 
+
 var scene = new THREE.Scene();
+scene.background = new THREE.Color(0xf0f0f0);
 
-var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.set(0, 0, 5);
-//camera.lookAt(new THREE.Vector3(0, 0, 0));
-group = new THREE.Group();
-group.position.y = 50;
-group.background = new THREE.Color(0xf0f0f0);
-scene.add(group);
+var camera = new THREE.PerspectiveCamera(100, 500 / 500, 1, 1000);
+camera.position.set(0, 0, 100);
+camera.lookAt(new THREE.Vector3(-50, -50, 0));
 
-var renderer = new THREE.WebGLRenderer();
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
+container = document.getElementById('canvas');
+document.body.appendChild(container);
 
-/*
-                var geometry = new THREE.BoxGeometry(1, 1, 1);
-                var material = new THREE.MeshBasicMaterial({
-                    color: 0x00fff0
-                });
-                var cube = new THREE.Mesh(geometry, material);
-                group.add(cube);
- */
-var defaultColor = new THREE.Color("rgb(255, 0, 0)");
+var renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(500, 500);
+container.appendChild(renderer.domElement);
+
+var controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.addEventListener('change', render);
+controls.minDistance = 20;
+controls.maxDistance = 500;
+controls.enablePan = false;
+
+var grid = new THREE.GridHelper(500, 50, 0x550000, 0xD0D0D0);
+grid.position.y = 0;
+grid.position.x = 0;
+grid.position.z = 0;
+grid.geometry.rotateX(Math.PI / 2);
+scene.add(grid);
+
+
+
+
+
+
+
+
+
+var defaultColor = new THREE.Color('black');
 var material = new THREE.LineBasicMaterial({ color: defaultColor });
-var geometry = new THREE.Geometry();
+
 
 
 var motionColor = {
-    'G0': new THREE.Color("rgb(255, 127, 0)"),
+    'G0': new THREE.Color('skyblue'),
     'G1': new THREE.Color("rgb(255, 0, 127)"),
     'G2': new THREE.Color("rgb(255, 0, 255)"),
     'G3': new THREE.Color("rgb(255, 255, 0)")
 };
+
 
 
 var addLine = function addLine(modal, v1, v2) {
@@ -67,7 +82,7 @@ var addArcCurve = function addArcCurve(modal, v1, v2, v0) {
         endAngle, // aEndAngle
         isClockwise // isClockwise
     );
-    var divisions = 40;
+    var divisions = 100;
     var points = arcCurve.getPoints(divisions);
     var color = motionColor[motion] || defaultColor;
     var vertices = [];
@@ -93,54 +108,89 @@ var addArcCurve = function addArcCurve(modal, v1, v2, v0) {
     return { vertices: vertices, colors: colors };
 };
 
-//var newmotion = addArcCurve({ motion: 'G2', plane: "G17" }, { v1: { x: 0, y: 0, z: 0 } }, { v2: { x: 0, y: 12.7, z: 0 } }, { v0: { x: 0.7, y: 0, z: 0 } });
-//var straight = addLine({ motion: 'G1' }, { v1: { x: 0, y: 0, z: 0 } }, { v2: { x: 10, y: 10, z: 0 } });
-
-
-
-
-/*geometry.vertices.push(
-    new THREE.Vector3(-100, 100, 0),
-    new THREE.Vector3(0, 100, 0),
-    new THREE.Vector3(0, 0, 0), new THREE.Vector3(5, 10, 0)
-
-);*/
-
-
-
 socket.on('toolpath', function(path) {
+
+    var laser_path = new THREE.Geometry();
+
+
     //console.log(path[0].v1);
 
-    console.log(path.length)
+    //console.log(motionColor);
+
+
+    //console.log(path);
     pathlenght = path.length;
 
     for (var i = 0; i < pathlenght; i++) {
-        console.log(path[i]);
-        if (path[i].motion == "G0" || "G1");
-        var newLine = addLine({ motion: path[i].motion }, { v1: path[i].v1 }, { v2: path[i].v2 });
-        //var newLine = addLine({ motion: 'G0' }, { v1: { x: 50, y: 50, z: 0 } }, { v2: { x: 10, y: 10, z: 0 } });
-        console.log(newLine.vertices);
+        //console.log(path[i].motion);
 
-        geometry.vertices.push(newLine[0]);
-        geometry.vertices.push(newLine[1]);
+        if (path[i].motion == 'G1' || 'G1') {
+
+            var newLine = addLine(path[i].motion, path[i].v1, path[i].v2);
+            //console.log(newLine.colors[1]);
+            laser_path.vertices.push(newLine.vertices[0], newLine.vertices[1]);
+            laser_path.colors.push(new THREE.Color('skyblue'));
+        } else if (path[i].motion == 'G2' || 'G3') {
+            var newCurve = addArcCurve(path[i].motion, path[i].v1, path[i].v2, path[i].v0);
+            newCurve.vertices.forEach(vector => {
+                laser_path.vertices.push(vector);
+            });
+
+        }
 
     }
 
-    group.add(line);
-    console.log(line.geometry);
-
-
-
+    //laser_path.computeBoundingBox();
+    //laser_path.center();
+    var line = new THREE.Line(laser_path, material);
+    //laser_path.verticesNeedUpdate = true;
+    scene.add(line);
+    line.position.set(-50, -50, 0);
+    //console.log(line.laser_path);
 });
 
 
-var line = new THREE.Line(geometry, material);
-console.log(line.geometry);
-group.add(line);
 
-function animate() {
-    requestAnimationFrame(animate);
-    renderer.render(group, camera);
+
+
+var pointer = new THREE.SphereGeometry(1, 32, 32);
+var s_material = new THREE.MeshBasicMaterial({ color: "red" });
+var sphere = new THREE.Mesh(pointer, s_material);
+sphere.position.set(-50, -50, 0);
+scene.add(sphere);
+
+
+
+
+socket.on("newCommand", function(_grbl_daten) {
+    //console.log(_grbl_daten);
+
+    try {
+        var grbl_daten = JSON.parse(_grbl_daten);
+        //console.log(grbl_daten);
+    } catch (e) {
+        //console.log(e);
+    }
+
+    if (grbl_daten !== undefined) {
+
+        var mxpos = Math.round((grbl_daten.MPos.Y) * 100) / 100;
+        var mypos = Math.round((grbl_daten.MPos.Y) * 100) / 100;
+
+        var wxpos = Math.round((grbl_daten.MPos.X - grbl_daten.WCO.X) * 100) / 100
+        var wypos = Math.round((grbl_daten.MPos.Y - grbl_daten.WCO.Y) * 100) / 100
+        var wcox = Math.round((grbl_daten.WCO.X) * 100) / 100;
+        var wcoy = Math.round((grbl_daten.WCO.Y) * 100) / 100;
+
+        sphere.position.set(wxpos - 50, wypos - 50, 0);
+
+    }
+});
+
+function render() {
+    renderer.render(scene, camera);
 }
 
-animate();
+setInterval(() => {
+    render();
+}, 0)
