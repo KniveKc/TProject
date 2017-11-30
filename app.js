@@ -1,16 +1,7 @@
-var fork_args = [''];
-
-if (process.argv[2] == ['dev']) {
-    fork_args = [process.argv[2]];
-    dev_mode = true;
-}
-
+'use strict';
 
 const { fork } = require('child_process');
-const serial_con = fork('./Scripts/serial.js', fork_args);
-
-
-//const img2gcode = require('./Scripts/img_gcode.js')
+const serial_con = fork('./Scripts/serial.js');
 const path = require('path');
 const fs = require('fs-extra');
 const express = require("express");
@@ -26,27 +17,21 @@ const favicon = require('serve-favicon');
 const db = require('./db');
 const database = require("./db/dbcon.js");
 const mailer = require('./Scripts/mailer.js');
-const rpio = require('rpio');
-const gcode_tp = require('./public/js/visu/toolpath.js');
-const toolpath = require('./public/js/visu/toolpath.js');
 
+var dev_mode = false;
 
-
-
+// Pi GPIO
+var rpio = require('rpio');
 rpio.open(18, rpio.OUTPUT, rpio.HIGH);
-
-
-var dev_mode = true;
-
 
 var current_user = null;
 var gcode = null;
 var JobState = 0;
 
 console.log("\x1b[35m", "\nServer running");
-console.log("\x1b[35m", `Server PID: ${process.pid}`);
-console.log("\x1b[35m", 'Serial process running');
-console.log("\x1b[35m", `Serial PID: ${serial_con.pid}`);
+console.log("\x1b[35m", `Own PID: ${process.pid}`);
+console.log("\x1b[35m", 'Child process running');
+console.log("\x1b[35m", `Child PID: ${serial_con.pid}`);
 
 
 // Konfiguration des ExpressJS Servers
@@ -56,7 +41,6 @@ app.set("views", __dirname + "/views");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(require('express-session')({ secret: 'db1990', resave: false, saveUninitialized: false }));
 app.use('/public', express.static('public'));
-app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -188,6 +172,9 @@ app.post('/upload', function(req, res) {
             console.log("\x1b[36m\x1b[1m", "1 record inserted into GCODES");
         });
 
+
+
+
     });
 
     // log any errors that occur
@@ -207,32 +194,6 @@ app.post('/upload', function(req, res) {
 //################################################
 
 
-
-//################# MYSQL MEDIUMBLOB TEST #############################
-
-/*
-fs.readFile(__dirname + '/libelle.png')
-    .then((data) => {
-        console.log(data);
-
-        var sql = 'INSERT INTO images SET ?',
-            values = {
-                image: data
-            };
-        database.query(sql, values, function(err, result) {
-            if (err) {
-                console.log("Query fehlgeschlagen!");
-                console.log(err);
-                return err;
-            }
-            console.log("\x1b[36m\x1b[1m", "1 record inserted into IMAGES");
-        });
-    })
-    .catch(err => console.error(err));
-*/
-
-//######################################################################
-
 io.sockets.setMaxListeners(0);
 
 var allClients = [];
@@ -248,29 +209,6 @@ io.sockets.on('connection', function(socket) {
 });
 
 io.on("connection", function(socket) {
-
-
-    //####################################################################################### 
-    /*
-        setInterval(() => {
-            var sql = "SELECT * FROM images WHERE id = 1";
-            database.query(sql, function(err, result) {
-                if (err) {
-                    console.log("Query fehlgeschlagen!");
-                    console.log(err);
-                    return err;
-                }
-                console.log("\x1b[36m\x1b[1m", "1 record inserted into IMAGES");
-
-                fs.writeFile('/public/images/img.png', result[0].image)
-                    .then(() => {
-                        console.log('Saved!');
-                    })
-                    .catch(err => console.error(err));
-            });
-        }, 1000);
-        */
-    //####################################################################################### 
 
     console.log("\x1b[32m\x1b[0m", "Ein Benutzer hat sich verbunden");
 
@@ -375,7 +313,7 @@ io.on("connection", function(socket) {
 
     socket.on('select_db', function(data) {
         del_user = data;
-        console.log(del_user);
+        //console.log(del_user);
 
     });
 
@@ -437,7 +375,7 @@ io.on("connection", function(socket) {
     });
 
     socket.on('deleteuser', () => {
-        var sql = (`delete from user where id = "${del_user.id}" and name = "${del_user.name}"`);
+        var sql = (`delete from user where id = "${del_user.id}"' and name = "${del_user.name}"`)
         database.query(sql, function(err, result) {
             if (err) {
                 console.log("\x1b[31m\x1b[4m", "Query fehlgeschlagen!");
@@ -491,7 +429,7 @@ io.on("connection", function(socket) {
                 console.log("\x1b[36m\x1b[1m", "1 User accepted");
 
             });
-        database.query(`delete from pending where id_pending = "${del_pending.id}" and name = "${del_pending.name}"`,
+        database.query("delete from pending where id_pending = '" + del_pending.id + "' and name = '" + del_pending.name + "'",
             function(err, result) {
                 if (err) {
                     console.log("\x1b[31m\x1b[0m", "Query fehlgeschlagen!");
@@ -506,7 +444,7 @@ io.on("connection", function(socket) {
 
 
     socket.on('password_request', function(data) {
-        console.log(data + 'hhhh');
+        console.log(data + 'hhhh')
         database.query(`select * from user where username = '${data.username}' and email = '${data.email}'`,
             function(err, result) {
                 if (err) {
@@ -521,7 +459,7 @@ io.on("connection", function(socket) {
                     text: `Dear ${result[0].username}, your Password is: ${result[0].password}`
                 };
 
-                mailer.mail(mailOptions);
+                mailer.mail(mailOptions)
 
             });
 
@@ -544,11 +482,6 @@ io.on("connection", function(socket) {
         serial_con.send({ text: command.command });
         socket.emit("newCommand", command);
         socket.broadcast.emit("newCommand", command);
-        //#############################
-        console.log(toolpath.path);
-        socket.emit('toolpath', toolpath.path);
-        socket.broadcast.emit('toolpath', toolpath.path);
-        //#################################
     });
 
     socket.on("homing", function() {
@@ -560,11 +493,10 @@ io.on("connection", function(socket) {
     });
 
     socket.on("sendeCode", function() {
-        if (JobState == 0) {
-            serial_con.send({ text: '~' });
-            rpio.write(18, rpio.LOW);
-            serial_con.send({ code: gcode, x: 0 });
-        }
+        serial_con.send({ text: '~' });
+        rpio.write(18, rpio.LOW);
+        serial_con.send({ code: gcode, x: 0 });
+
     });
 
     socket.on("open", function() {
@@ -788,18 +720,18 @@ io.on("connection", function(socket) {
                 //serial_con.send({ text: '!' });
                 rpio.write(18, rpio.LOW);
                 JobState = 1;
-                console.time('label');
-                //console.log(JobState);
+                console.time('label')
+                console.log(JobState);
             } else if (msg.job == 'run') {
                 JobState = 1;
-                //console.log(JobState);
+                console.log(JobState);
             } else if (msg.job == 'done') {
                 serial_con.send({ cmd: 'pause' });
                 //serial_con.send({ text: '!' });
                 rpio.write(18, rpio.HIGH);
                 JobState = 0;
-                //console.log(JobState);
-                //console.timeEnd('label');
+                console.log(JobState);
+                console.timeEnd('label');
             }
         }
     });

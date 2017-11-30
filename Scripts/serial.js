@@ -4,18 +4,14 @@ const fs = require('fs');
 const serialport = require('serialport'); // Serialport Modul einbinden
 const SerialPort = serialport; // Lokale instanz von Serialport erstellen
 
-var debug = false;
-
-if (process.argv[2] == 'dev') {
-    debug = true;
-}
+const debug = false;
 
 var status = 0;
 var y = 0;
 var handleState = 0;
 var config = {};
 
-const noop = () => { return 0; };
+noop = () => { return 0; };
 
 
 var serial_config = {
@@ -230,7 +226,7 @@ function read(data) {
         grbl_daten.command = data;
     } else if (data.match(/[o]+[k]/g)) {
         //console.log("OK");
-        grbl_daten.command = data;
+        grbl_daten.command = "Ok";
         status = 1;
     } else if (data.match(/[[][A-Z]+(.)+[:]/g)) {
         var arr_data = 0;

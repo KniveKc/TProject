@@ -114,18 +114,7 @@ $(document).ready(function() {
 
     $('#select_button').click(function() {
         socket.emit('plot_code');
+
     });
-
-    socket.on('img', (data) => {
-        console.log(data);
-
-        function image() {
-            var img = document.createElement("IMG");
-            img.src = "public/images/img.png";
-            $('#image').html(img);
-        }
-        image();
-    })
-
 
 });

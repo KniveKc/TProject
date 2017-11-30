@@ -1,4 +1,4 @@
-var socket = io.connect();
+const socket = io.connect();
 var lastCommand = "";
 
 $(document).ready(function() {
